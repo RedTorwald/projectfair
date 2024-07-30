@@ -50,4 +50,19 @@ class Institute extends InstituteResource
      * @OA\Property()
      */
     public string $name;
+
+    /**
+     * Максимальное кол-во одобренных проектов на весну
+     * @var int
+     * @OA\Property()
+     */
+    public int $maxSpringApprovedProjects;
+
+    /**
+     * Максимальное кол-во одобренных проектов на осень
+     * @var int
+     * @OA\Property()
+     */
+    public int $maxAutumnApprovedProjects;
+    
 }
