@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('participations', function (Blueprint $table) {
-            $table->integer('mark');
+            $table->integer('mark')->default(0);
         });
     }
 
