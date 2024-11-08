@@ -2,16 +2,13 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Participation;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\Participation;
 
-/**
- * Данные о проекте для апи
- */
-class ProjectResource extends JsonResource
+class StartPageResource extends JsonResource
 {
     /**
-     * Трансформирует данные о проекте для апи
+     * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
@@ -20,45 +17,45 @@ class ProjectResource extends JsonResource
     {
         $participations = Participation::where('project_id', '=', $this->id)->get();
         $participations->load('candidate');
-        $filteredData = $this->getStateFilter();   
+       // $filteredData = $this->getStateFilter();   
         return [
-            'id' => $this->id,
-            'prevProjectId' => $this->prev_project_id,
+            'id' => $this->id,                                                                                //нужно
+            //'prevProjectId' => $this->prev_project_id,
 
-            'title' => $this->title,
-            'places' => $this->places,
-            'goal' => $this->goal,
-            'description' => $this->description,
-            'difficulty' => $this->difficulty,
-            'date_start' => $this->date_start,
-            'date_end' => $this->date_end,
-            'requirements' => $this->requirements,
-            'additional_inf' => $this->additional_inf,            
-            'product_result' => $this->product_result,
-            'customer' => $this->customer,
-            'study_result' => $this->study_result,
-            'supervisors' => ProjectSupervisorResource::collection($this->projectSupervisors),
-            'skills' => SkillResource::collection($this->skills),
-            'specialities' => SpecialityResource::collection($this->specialities),
+            'title' => $this->title,                                                                       //нужно
+            'places' => $this->places,                                                                    //нужно
+            'goal' => $this->goal,                                                                       //нужно
+           // 'description' => $this->description,
+            'difficulty' => $this->difficulty,                                                          //нужно
+            'date_start' => $this->date_start,                                                         //нужно
+            //'date_end' => $this->date_end,
+            'requirements' => $this->requirements,                                                   //нужно?????
+            //'additional_inf' => $this->additional_inf,            
+            //'product_result' => $this->product_result,
+            //'customer' => $this->customer,                                                       //нужно?????
+           // 'study_result' => $this->study_result,
+            'supervisors' => ProjectSupervisorResource::collection($this->projectSupervisors),   //нужно
+            'skills' => SkillResource::collection($this->skills),                               //нужно
+            'specialities' => SpecialityResource::collection($this->specialities),             //нужно
             'project_specialities' => ProjectSpecialityResource::collection($this->projectSpecialities),
-            'supervisorsNames' => $this->supervisorsNames,
+            //'supervisorsNames' => $this->supervisorsNames,                                //нужно?????
 
-            'project_review' => $this->project_review,
-            'project_goal' => $this->project_goal,
+            //'project_review' => $this->project_review,
+           // 'project_goal' => $this->project_goal,
 
-            'rejection_reason' => $this->rejection_reason,
-            'rejection_date' => $this->rejection_date,
+            //'rejection_reason' => $this->rejection_reason,
+           // 'rejection_date' => $this->rejection_date,
 
-            'department' => new DepartmentResource($this->department),
+           // 'department' => new DepartmentResource($this->department),
             'state' => new StateResource($this->getState()),
             'type' => new TypeResource($this->type),                                     //тип проекта              
             'theme_source' => new ThemeSourceResource($this->themeSource),              //Уточнить
 
-            'participations' => ParticipationResource::collection($participations),    // участники проекта
+           // 'participations' => ParticipationResource::collection($participations),    // участники проекта
 
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'stateFilter' => $filteredData,                                          //Уточнить у фронта про фильтр
+           // 'created_at' => $this->created_at,
+           // 'updated_at' => $this->updated_at,
+           // 'stateFilter' => $filteredData,                                         //Уточнить у фронта про фильтр
         ];
     }
 }
@@ -66,7 +63,7 @@ class ProjectResource extends JsonResource
 /**
  * @OA\Schema()
  */
-class Project extends ProjectResource
+class Project extends StartPageResource
 {
 
     /**
@@ -254,3 +251,5 @@ class Project extends ProjectResource
      */
     public string $updated_at;
 }
+
+

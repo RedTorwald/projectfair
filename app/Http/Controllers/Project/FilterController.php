@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Project;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\StartPageResource;
 use App\Http\Services\ProjectService;
 use App\Models\Project;
 use App\Models\ProjectStateEnum;
@@ -216,7 +217,8 @@ class FilterController extends Controller
 
         $projectCount = count($projectCollection);
         $projectCollection = $this->paginateProjects($request, $projectCollection);
-        return response()->json(['data' => ProjectResource::collection($projectCollection), 'projectCount' => $projectCount])->setStatusCode(200);
+    //    return response()->json(['data' => ProjectResource::collection($projectCollection), 'projectCount' => $projectCount])->setStatusCode(200);
+        return response()->json(['data' => StartPageResource::collection($projectCollection), 'projectCount' => $projectCount])->setStatusCode(200);
     }
 
     private function sortProjects(Request $request, Collection $projectCollection): Collection

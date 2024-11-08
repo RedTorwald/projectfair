@@ -30,7 +30,7 @@ class CandidateController extends AdminController
    
 		$grid = new Grid(new Candidate());
         $grid->column('id', __('Id'));
-         $grid->column('mira_id', __('miraId'));
+        $grid->column('mira_id', __('miraId'));
         $grid->column('created_at', __('Дата создания'))->hide();
         $grid->column('updated_at', __('Дата обновления'))->sortable();
         $grid->column('about', __('о студенте'))->hide();

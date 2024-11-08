@@ -42,11 +42,10 @@ class ReportController extends Controller
         $data = [
             'amount' => $amount,
             'projects' => ProjectReportResource::collection($projects),
-        ];*/
-       
+        ];*/      
 
         return ProjectReportResource::collection($projects);
-        //return response()->json($data);
+        
     }
 }
  

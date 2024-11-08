@@ -75,7 +75,7 @@ Route::group(['prefix' => 'admin'], function () {
 Route::group(['prefix' => 'director'], function () {
     Route::patch('/projects/{project}', App\Http\Controllers\Supervisor\Director\Projects\UpdateController::class)->middleware(SupervisorAuthProtected::class);
     Route::get('/projects', App\Http\Controllers\Supervisor\Director\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);
-    Route::get('/projects/report', App\Http\Controllers\Admin\Project\ReportController::class);
+    Route::get('/projects/report', App\Http\Controllers\Admin\Project\ReportController::class)->middleware(SupervisorAuthProtected::class);
 });
 
 // --------- SUPERVISORS CABINET ROUTES ---------
@@ -83,7 +83,7 @@ Route::group(['prefix' => 'director'], function () {
 Route::group(['prefix' => 'supervisor'], function () {
     Route::get('/', App\Http\Controllers\Supervisor\MeController::class)->middleware(SupervisorAuthProtected::class); // Получить информацию об авторизованном преподе
     Route::post('/projects', App\Http\Controllers\Supervisor\Projects\StoreController::class)->middleware(SupervisorAuthProtected::class);
-    Route::get('/projects', App\Http\Controllers\Supervisor\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);
+    Route::get('/projects', App\Http\Controllers\Supervisor\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);          //ProjectResource, отображение проектов в профиле супервизора, следует поменять на StartPageRes
     
     Route::patch('/projects/{project}/candidates/{candidate}', [UpdateParticipationController::class, 'update'])->middleware(SupervisorAuthProtected::class);
    
@@ -180,10 +180,21 @@ Route::middleware(['candidateAuthProtected'])->group(function () { // роуты
     Route::get('/candidate/skills', App\Http\Controllers\Candidate\SkillsController::class); // Получение навыков студента
     Route::patch('/candidate', App\Http\Controllers\Candidate\MeUpdateController::class); // Обновить номер телефона, о себе, скиллы студента
     Route::get('/candidate', App\Http\Controllers\Candidate\MeController::class); // Получить информацию об авторизованном студенте
-    Route::get('/activeProject', App\Http\Controllers\Candidate\ActiveProjectController::class); // Получение активного проекта студента
-    Route::get('/arhiveProjects', App\Http\Controllers\Candidate\ArhiveProjectsController::class); // Получение архивных проектов студента
+    Route::get('/activeProject', App\Http\Controllers\Candidate\ActiveProjectController::class); // Получение активного проекта студента         //следует поменять на StartPageRes
+    Route::get('/arhiveProjects', App\Http\Controllers\Candidate\ArhiveProjectsController::class); // Получение архивных проектов студента      //следует поменять на StartPageRes (профиль/проекты)
 });
 
 
 
 Route::get('/participationsDeadline', App\Http\Controllers\Participation\DeadLineController::class); // Получение дедлайна подачи заявки
+
+//Route::get('/arm', App\Http\Controllers\ArmControllerSecond::class);
+//Route::get('/arm/projects', App\Http\Controllers\ArmControllerFirst::class);
+
+
+Route::patch('/arm/projects/distribution', App\Http\Controllers\UpdateDistributionController::class);
+
+
+Route::get('/arm/projects', App\Http\Controllers\GetAutoDistributionController::class);
+Route::get('/arm/candidates', App\Http\Controllers\GetCandidatesController::class);
+Route::get('/arm/candidates/distribution', App\Http\Controllers\GetManualDistributionController::class);
