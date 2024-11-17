@@ -40,10 +40,20 @@ class GetAutoDistributionController extends Controller
         $this->distributeWithoutParticipation();
 
       //  $filteredFilePath = '7_without_distribution.json';
+
+      
+        $filteredFilePath = Storage::exists('6_manual.json') 
+        ? '6_manual.json' 
+        : (Storage::exists('3_updated.json') 
+            ? '3_updated.json' 
+            : '2_distribution.json');
        
+            /*
         $filteredFilePath = Storage::exists('3_updated.json') 
         ? '3_updated.json' 
-        : '2_distribution.json';
+        : '2_distribution.json';*/
+
+
         $jsonData = Storage::get($filteredFilePath); 
         $filteredParticipations = json_decode($jsonData, true); 
 
@@ -56,7 +66,21 @@ class GetAutoDistributionController extends Controller
     // шаг 1 получение проектов и студентов на проектах
     public function generateProjectStructure()
     {
+       
+        $currentYear = now()->year; 
+        $currentMonth = now()->month; 
         
+        // Определяем ближайший месяц семестра
+        $semesterMonth = ($currentMonth > 2 && $currentMonth < 9) ? 2 : 9;
+        
+        // шаг 1
+        // при помощи модели Participation получаем связи candidate, project. Для project получаем институты и скиллы. Принцип "eager loading" 
+        $participations = Participation::with(['candidate', 'project.department.institute', 'project.projectSpecialities']) 
+            ->whereYear('created_at', $currentYear) // год по updated_at
+            ->whereMonth('created_at', $semesterMonth) // ближайший семестр (2 или 9)
+            ->where('state_id', 1) // заявки с состоянием 1
+            ->get();
+            /*
         $currentYear = now()->year; // получение текущего года
         $month = 9; // нужно исправить на получение месяца семестра
     
@@ -66,8 +90,8 @@ class GetAutoDistributionController extends Controller
             ->whereYear('created_at', $currentYear) // год + ЗАМЕНИТЬ НА UPDATED_AT
             ->whereMonth('created_at', $month) // месяц
             ->where('state_id', 1) // заявки с состоянием 1
-            ->get();
-    
+            ->get();*/
+
         // шаг 2: массив для структуры JSON
         $structure = [];
     
@@ -121,7 +145,7 @@ class GetAutoDistributionController extends Controller
                                 'priority' => $projectSpeciality->priority,
                                 'course' => $projectSpeciality->course
                             ];
-                        })->toArray(),
+                        })->values()->toArray(),
                 ];
             }
     
@@ -132,20 +156,21 @@ class GetAutoDistributionController extends Controller
                 'course' => $candidate->course,
                 'fio' => $candidate->fio,
                 'priority' => $participation->priority,
-                'created_at' => $participation->created_at // ПОМЕНЯТЬ НА UPDATED_AT
+                'created_at' => $participation->created_at, // ПОМЕНЯТЬ НА UPDATED_AT
+                'updated_at' => $participation->updated_at
             ];
     
             // счётчик++
             $structure[$institute->id]['departments'][$department->id]['projects'][$project->id]['candidates_count']++;
         }
     
-        // шаг 4: сортировка кандидатов по приоритету и дате создания в каждом проекте
+        // шаг 4: сортировка кандидатов по приоритету и дате обновления в каждом проекте
         foreach ($structure as &$institute) {
             foreach ($institute['departments'] as &$department) {
                 foreach ($department['projects'] as &$project) {
                     // сортировка
                     $project['candidates'] = collect($project['candidates'])->sortBy(function ($candidate) {  // массив -> в коллекцию Laravel для кастомной сортировки
-                        return [$candidate['priority'], $candidate['created_at']]; //сортировка по priority и created_at
+                        return [$candidate['priority'], $candidate['created_at']]; //сортировка по priority и updated_at
                     })->values()->toArray(); // возвращаем в массив
                 }
             }
@@ -163,7 +188,7 @@ class GetAutoDistributionController extends Controller
 
         $jsonFilePath = '1_projects_structure.json';
         Storage::put($jsonFilePath, json_encode($structure, JSON_PRETTY_PRINT));    
-        // респонс
+        
         return $structure;
     }   
     

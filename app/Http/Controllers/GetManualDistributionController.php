@@ -2,36 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Participation;
-use App\Http\Services\CandidateDistributionService;
+
+
 use Illuminate\Support\Facades\Storage;
 
 class GetManualDistributionController extends Controller
 {
-    protected $candidateDistributionService;
-
-    public function __construct(CandidateDistributionService $candidateDistributionService)
-    {
-        $this->candidateDistributionService = $candidateDistributionService;
-    }
 
 
     public function __invoke()
     {
 
-        $filteredFilePath = Storage::exists('8_updated.json') 
-        ? '8_updated.json' 
-        : '7_without_distribution.json';
+        $filteredFilePath = Storage::exists('6_manual.json') 
+        ? '6_manual.json' 
+        : (Storage::exists('3_updated.json') 
+            ? '3_updated.json' 
+            : '2_distribution.json');
 
-        $outputFilePath = '11_without_participations_with_projects.json';  
+        $outputFilePath = '5_manual.json';  
         
-        $this->findEligibleProjectsForCandidates($filteredFilePath, $outputFilePath);
- 
+        $this->findEligibleProjectsForCandidates($filteredFilePath, $outputFilePath); 
         
         $jsonData = Storage::get($outputFilePath); 
         $filteredParticipations = json_decode($jsonData, true); 
-
-        // респонс
+        
         return response()->json($filteredParticipations);
     }
 
@@ -80,6 +74,9 @@ class GetManualDistributionController extends Controller
                 }
             }
 
+            usort($eligibleProjects, function ($a, $b) {
+                return $a['project_id'] <=> $b['project_id'];
+            });
             
             $candidatesWithProjects[] = [
                 'candidate_id' => $candidate['candidate_id'],
@@ -100,6 +97,10 @@ class GetManualDistributionController extends Controller
                 'eligible_projects' => $eligibleProjects,
             ];
         }
+
+        usort($candidatesWithProjects, function ($a, $b) {
+            return $a['candidate_id'] <=> $b['candidate_id'];
+        });
 
         
         Storage::put($outputFilePath, json_encode($candidatesWithProjects, JSON_PRETTY_PRINT));

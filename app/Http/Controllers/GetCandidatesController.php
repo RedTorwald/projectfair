@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Participation;
-use App\Http\Services\CandidateDistributionService;
 use Illuminate\Support\Facades\Storage;
 
 class GetCandidatesController extends Controller
 {
     public function __invoke()
     {        
+
+        $inputFilePath = Storage::exists('6_manual.json') 
+        ? '6_manual.json' 
+        : (Storage::exists('3_updated.json') 
+            ? '3_updated.json' 
+            : '2_distribution.json');
+
+            /*
         $inputFilePath = Storage::exists('3_updated.json') 
             ? '3_updated.json' 
-            : '2_distribution.json';
+            : '2_distribution.json';*/
     
         $outputFilePath = '4_grouped_participations.json';    
        

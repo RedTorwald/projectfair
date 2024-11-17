@@ -83,7 +83,7 @@ Route::group(['prefix' => 'director'], function () {
 Route::group(['prefix' => 'supervisor'], function () {
     Route::get('/', App\Http\Controllers\Supervisor\MeController::class)->middleware(SupervisorAuthProtected::class); // Получить информацию об авторизованном преподе
     Route::post('/projects', App\Http\Controllers\Supervisor\Projects\StoreController::class)->middleware(SupervisorAuthProtected::class);
-    Route::get('/projects', App\Http\Controllers\Supervisor\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);          //ProjectResource, отображение проектов в профиле супервизора, следует поменять на StartPageRes
+    Route::get('/projects', App\Http\Controllers\Supervisor\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);   //ProjectResource, отображение проектов в профиле супервизора, следует поменять на StartPageRes
     
     Route::patch('/projects/{project}/candidates/{candidate}', [UpdateParticipationController::class, 'update'])->middleware(SupervisorAuthProtected::class);
    
@@ -197,4 +197,7 @@ Route::patch('/arm/projects/distribution', App\Http\Controllers\UpdateDistributi
 
 Route::get('/arm/projects', App\Http\Controllers\GetAutoDistributionController::class);
 Route::get('/arm/candidates', App\Http\Controllers\GetCandidatesController::class);
-Route::get('/arm/candidates/distribution', App\Http\Controllers\GetManualDistributionController::class);
+
+
+Route::get('/arm/manualDistribution', App\Http\Controllers\GetManualDistributionController::class);
+Route::patch('/arm/manualDistribution', App\Http\Controllers\UpdateManualDistributionController::class);
