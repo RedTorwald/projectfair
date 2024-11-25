@@ -470,6 +470,7 @@ class CandidateDistributionService
                     $selectedProject['candidates'][] = [
                         'candidate_id' => $candidate['candidate_id'],
                         'fio' => $candidate['fio'],
+                        'training_group' => $candidate['training_group'],
                         'priority' => $candidate['priority'],
                         'state_id' => 1, 
                         'created_at' => now()->toDateTimeString(),

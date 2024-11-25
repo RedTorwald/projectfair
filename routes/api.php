@@ -201,3 +201,7 @@ Route::get('/arm/candidates', App\Http\Controllers\GetCandidatesController::clas
 
 Route::get('/arm/manualDistribution', App\Http\Controllers\GetManualDistributionController::class);
 Route::patch('/arm/manualDistribution', App\Http\Controllers\UpdateManualDistributionController::class);
+
+Route::get('/arm/erraseDistribution', App\Http\Controllers\GetErraseDistributionController::class);
+
+Route::get('/docs', App\Http\Controllers\DocumentController::class); // контроллер для перевода отчетности в БД
