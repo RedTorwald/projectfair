@@ -33,7 +33,7 @@ class ReportController extends Controller
 
         //получаем проекты 
         $projects = Project::with('supervisors')
-            ->where('date_end', '>=', $startDateString)
+            ->where('date_end', '>=', $startDateString)           
             ->get();
                         
         $amount = count($projects);

@@ -184,24 +184,55 @@ Route::middleware(['candidateAuthProtected'])->group(function () { // роуты
     Route::get('/arhiveProjects', App\Http\Controllers\Candidate\ArhiveProjectsController::class); // Получение архивных проектов студента      //следует поменять на StartPageRes (профиль/проекты)
 });
 
-
-
 Route::get('/participationsDeadline', App\Http\Controllers\Participation\DeadLineController::class); // Получение дедлайна подачи заявки
 
-//Route::get('/arm', App\Http\Controllers\ArmControllerSecond::class);
-//Route::get('/arm/projects', App\Http\Controllers\ArmControllerFirst::class);
 
 
-Route::patch('/arm/projects/distribution', App\Http\Controllers\UpdateDistributionController::class);
+Route::group(['prefix' => 'arm'], function () {
+    Route::patch('/projects/distribution', App\Http\Controllers\ArmDistribution\UpdateDistributionController::class);
+    Route::get('/projects', App\Http\Controllers\ArmDistribution\GetAutoDistributionController::class);
+    Route::get('/candidates', App\Http\Controllers\ArmDistribution\GetCandidatesController::class);
+    Route::get('/manualDistribution', App\Http\Controllers\ArmDistribution\GetManualDistributionController::class);
+    Route::patch('/manualDistribution', App\Http\Controllers\ArmDistribution\UpdateManualDistributionController::class);
+    Route::get('/eraseDistribution', App\Http\Controllers\ArmDistribution\GetExistenceController::class); // гет для проверки
+    Route::post('/eraseDistribution', App\Http\Controllers\ArmDistribution\PostEraseDistributionController::class); // пост для удаления
+    Route::get('/manualDistribution/back', App\Http\Controllers\ArmDistribution\UpdateLastManualActionController::class); // для лога
+});
+
+//-----------------------------------------------------------------------------------
+    Route::patch('/arm/projects/distribution', App\Http\Controllers\ArmDistribution\UpdateDistributionController::class);
 
 
-Route::get('/arm/projects', App\Http\Controllers\GetAutoDistributionController::class);
-Route::get('/arm/candidates', App\Http\Controllers\GetCandidatesController::class);
+    Route::get('/arm/projects', App\Http\Controllers\ArmDistribution\GetAutoDistributionController::class); // автоматическое формирование проектных команд
+
+    Route::get('/arm/candidates', App\Http\Controllers\ArmDistribution\GetCandidatesController::class); // получение нераспределенных студентов
+
+    Route::get('/arm/approveDistribution', App\Http\Controllers\ArmDistribution\GetApproveDistributionController::class); // со студентами
 
 
-Route::get('/arm/manualDistribution', App\Http\Controllers\GetManualDistributionController::class);
-Route::patch('/arm/manualDistribution', App\Http\Controllers\UpdateManualDistributionController::class);
+    Route::get('/arm/manualDistribution', App\Http\Controllers\ArmDistribution\GetManualDistributionController::class);
+    Route::patch('/arm/manualDistribution', App\Http\Controllers\ArmDistribution\UpdateManualDistributionController::class);
 
-Route::get('/arm/erraseDistribution', App\Http\Controllers\GetErraseDistributionController::class);
+
+    Route::get('/arm/eraseDistribution', App\Http\Controllers\ArmDistribution\GetExistenceController::class); // гет для проверки наличия файлов с предыдущим распределением
+    Route::post('/arm/eraseDistribution', App\Http\Controllers\ArmDistribution\PostEraseDistributionController::class); // пост для удаления
+
+
+    Route::get('/arm/manualDistribution/back', App\Http\Controllers\ArmDistribution\UpdateLastManualActionController::class); // для лога
+
+
+    Route::get('/arm/finalDistribution', App\Http\Controllers\ArmDistribution\GetFinalDistributionController::class);
+
+    Route::post('/arm/exportCandidates', App\Http\Controllers\ArmDistribution\ExportCandidatesController::class);
+    Route::delete('/arm/cancelExportCandidates', App\Http\Controllers\ArmDistribution\CancelExportController::class);
+
+
+//-------------------------------------------------------------------------------
+
+/*
+Route::get('/arm', App\Http\Controllers\GetTestController::class);*/
+
+
+
 
 Route::get('/docs', App\Http\Controllers\DocumentController::class); // контроллер для перевода отчетности в БД

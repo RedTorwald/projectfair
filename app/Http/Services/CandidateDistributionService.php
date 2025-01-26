@@ -228,8 +228,10 @@ class CandidateDistributionService
             ];
         });
     
-        // удаляем дубликаты кандидатов
+       
+        //удаление лишних заявок, которые прошли на проект
         $excessParticipations = $this->removeDuplicateExcessParticipations($filteredStructure, collect($excessParticipations));
+         // удаляем дубликаты кандидатов
         $uniqueExcessParticipations = $this->removeDuplicatesFromExcessParticipations($excessParticipations);
     
         // формируем результат с обновленными проектами и лишними заявками
@@ -288,7 +290,20 @@ class CandidateDistributionService
         $data = json_decode($jsonData, true);
 
         $currentYear = now()->year; // получение текущего года
-        $currentTime = now(); 
+        $currentMonth = now()->month; 
+        $currentTime = now();         
+        $semesterMonth = ($currentMonth > 1 && $currentMonth < 9) ? 2 : 9;
+
+
+
+        /*
+
+        $currentYear = 2024; // получение текущего года
+       
+        $semesterMonth =9; */
+
+
+        
 
         $projects = $data['projects'];
         $excessParticipations = $data['excess_participations'];
@@ -296,7 +311,7 @@ class CandidateDistributionService
         // получаем уникальные заявки по candidate_id за сентябрь с state_id 1
         $participations = Participation::with('project')
             ->whereYear('created_at', $currentYear)
-            ->whereMonth('created_at', 9)
+            ->whereMonth('created_at', $semesterMonth)
             ->where('state_id', 1)
             ->pluck('candidate_id')
             ->unique();
@@ -488,6 +503,124 @@ class CandidateDistributionService
         Storage::put($outputFilePath, json_encode($jsonData, JSON_PRETTY_PRINT));        
         return response()->json($jsonData);
     }  
+
+
+
+    public function getAndSaveDuplicates(string $filePath, string $duplicatesFilePath)
+    {
+        // Считываем данные из файла
+        $jsonData = Storage::get($filePath);
+        $projectsData = collect(json_decode($jsonData, true));
+
+        // Собираем всех кандидатов из всех проектов в один массив
+        $allCandidates = $projectsData->flatMap(function ($institute) {
+            return collect($institute['departments'])->flatMap(function ($department) {
+                return collect($department['projects'])->flatMap(function ($project) {
+                    return collect($project['candidates'])->map(function ($candidate) use ($project) {
+                        return [
+                            'candidate_id' => $candidate['candidate_id'],
+                            'priority' => $candidate['priority'],
+                            'project_id' => $project['project_id'],
+                            'created_at' => $candidate['created_at'],
+                        ];
+                    });
+                });
+            });
+        });
+
+        // Группируем кандидатов по `candidate_id` и `priority`, чтобы найти дубликаты
+        $duplicates = $allCandidates
+            ->groupBy(fn($candidate) => $candidate['candidate_id'] . '_' . $candidate['priority'])
+            ->filter(fn($group) => $group->count() > 1)
+            ->flatMap(function ($group) {
+                return $group->sortBy('created_at')->splice(1); // Оставляем все, кроме самой ранней заявки
+            });
+
+        // Сохраняем дубликаты в файл
+        Storage::put($duplicatesFilePath, json_encode($duplicates->values()->toArray(), JSON_PRETTY_PRINT));
+
+        return $duplicates->values()->toArray();
+    }
+
+    public function removeDuplicates(string $filePath, string $duplicatesFilePath)
+    {
+        // Считываем основную структуру
+        $jsonData = Storage::get($filePath);
+        $projectsData = collect(json_decode($jsonData, true));
+
+        // Считываем дубликаты
+        $duplicatesData = collect(json_decode(Storage::get($duplicatesFilePath), true));
+
+        // Преобразуем дубликаты в удобный для поиска формат
+        $duplicatesSet = $duplicatesData->map(function ($duplicate) {
+            return [
+                'candidate_id' => $duplicate['candidate_id'],
+                'project_id' => $duplicate['project_id'],
+            ];
+        });
+
+        // Удаляем дубликаты из структуры
+        $filteredProjectsData = $projectsData->map(function ($institute) use ($duplicatesSet) {
+            $institute['departments'] = collect($institute['departments'])->map(function ($department) use ($duplicatesSet) {
+                $department['projects'] = collect($department['projects'])->map(function ($project) use ($duplicatesSet) {
+                    $project['candidates'] = collect($project['candidates'])->reject(function ($candidate) use ($duplicatesSet, $project) {
+                        return $duplicatesSet->contains(function ($duplicate) use ($candidate, $project) {
+                            return $duplicate['candidate_id'] === $candidate['candidate_id']
+                                && $duplicate['project_id'] === $project['project_id'];
+                        });
+                    })->values()->toArray();
+
+                    // Обновляем количество кандидатов
+                    $project['candidates_count'] = count($project['candidates']);
+                    return $project;
+                })->toArray();
+
+                return $department;
+            })->toArray();
+
+            return $institute;
+        });
+
+        // Сохраняем обновлённую структуру обратно в файл
+        Storage::put($filePath, json_encode($filteredProjectsData->values()->toArray(), JSON_PRETTY_PRINT));
+
+        return $filteredProjectsData->values()->toArray();
+    }
+
+
+    public function clearCandidates(string $filePath, string $outputFilePath)
+    {
+   
+        $jsonData = Storage::get($filePath);
+        $projectsData = json_decode($jsonData, true);
+
+        // Удаляем разделы excess_participation и without_participation
+       // unset($projectsData['excess_participations']);
+       // unset($projectsData['without_participation']);
+
+        // Проходимся по структуре и очищаем списки кандидатов
+        if (isset($projectsData['projects'])) {
+            foreach ($projectsData['projects'] as &$institute) {
+                if (isset($institute['departments'])) {
+                    foreach ($institute['departments'] as &$department) {
+                        if (isset($department['projects'])) {
+                            foreach ($department['projects'] as &$project) {
+                                // Очищаем список кандидатов
+                                $project['candidates'] = [];
+                                // Сбрасываем счётчик кандидатов                               
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Сохраняем обновлённые данные в указанный файл
+        Storage::put($outputFilePath, json_encode($projectsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        return $projectsData;
+    }
+
 
     
 }
