@@ -37,7 +37,7 @@ class ExportCandidatesController extends Controller
                             'candidate_id' => $candidate['candidate_id'],
                             'priority' => $candidate['priority'],
                             'project_id' => $projectId,
-                            'state_id' => 10, // Устанавливаем фиксированный state_id
+                            'state_id' => 3, // Устанавливаем фиксированный state_id
                             'created_at' => $currentTimestamp,
                             'updated_at' => $currentTimestamp,
                         ];

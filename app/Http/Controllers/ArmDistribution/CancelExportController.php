@@ -40,7 +40,7 @@ class CancelExportController extends Controller
                 DB::table('participations')
                     ->where('candidate_id', $candidateId)
                     ->where('project_id', $projectId)
-                    ->where('state_id', 10)
+                    ->where('state_id', 3)
                     ->delete();
             }
 
