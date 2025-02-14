@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Participation;
 use App\Http\Services\CandidateDistributionService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class GetAutoDistributionController extends Controller
 {
@@ -50,13 +51,6 @@ class GetAutoDistributionController extends Controller
         // Шаг 8
         $this->clearCandidates();
    
-/*
-        $filteredFilePath = Storage::exists('6_manual.json') 
-        ? '6_manual.json' 
-        : (Storage::exists('3_1_updated.json') 
-            ? '3_1_updated.json' 
-            : '2_1_distribution.json');*/
-
         $filteredFilePath = Storage::exists('3_1_updated.json') 
         ? '3_1_updated.json' 
         : '2_1_distribution.json';
@@ -69,43 +63,30 @@ class GetAutoDistributionController extends Controller
     }
 
     //--------------------------------------------------------------------------------------------------------------
-
     // шаг 1 получение проектов и студентов на проектах
     public function generateProjectStructure()
     {
-       
         $currentYear = now()->year; 
         $currentMonth = now()->month; 
         
         // ближайший месяц семестра
         $semesterMonth = ($currentMonth > 1 && $currentMonth < 9) ? 2 : 9;
         
-        
-        /*
-        $currentYear = 2024; 
-        $currentMonth = 9; 
-        $semesterMonth = 9;*/
-        
-        // шаг 1
-        // при помощи модели Participation получаем связи candidate, project. Для project получаем институты и скиллы. Принцип "eager loading" 
+        // шаг 1: получение заявок с участниками и проектами
         $participations = Participation::with(['candidate', 'project.department.institute', 'project.projectSpecialities']) 
-            ->whereYear('created_at', $currentYear) // год по updated_at
-            ->whereMonth('created_at', $semesterMonth) // ближайший семестр (2 или 9)
-            ->where('state_id', 1) // заявки с состоянием 1
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $semesterMonth)
+            ->where('state_id', 1)
             ->get();
-        
         
         // шаг 2: массив для структуры JSON
         $structure = [];
-    
+
         foreach ($participations as $participation) {
-            // получаем из переменной институт, кафедру, проект и кандидата
             $institute = $participation->project->department->institute;
             $department = $participation->project->department;
             $project = $participation->project;
             $candidate = $participation->candidate;
-    
-            // шаг 3: создаем структуру json: projects -> institute -> departments -> department -> project
 
             // проверка на наличие института в структуре
             if (!isset($structure[$institute->id])) {
@@ -115,7 +96,7 @@ class GetAutoDistributionController extends Controller
                     'departments' => []
                 ];
             }
-    
+
             // проверка на наличие кафедры в институте
             if (!isset($structure[$institute->id]['departments'][$department->id])) {
                 $structure[$institute->id]['departments'][$department->id] = [
@@ -126,14 +107,12 @@ class GetAutoDistributionController extends Controller
             }    
             
             if (!isset($structure[$institute->id]['departments'][$department->id]['projects'][$project->id])) {
-                // получаем специальность проекта методом projectSpecialities
-                $specialities = $project->projectSpecialities; //получаем коллекцию связанных моделей из БД. "Ленивая загрузка"
-    
-                // Добавляем проект со специальностями
+                $specialities = $project->projectSpecialities;
+
                 $structure[$institute->id]['departments'][$department->id]['projects'][$project->id] = [
                     'project_id' => $project->id,
-                    'places' => $project->places, // количество мест в проекте
-                    'candidates_count' => 0, // счётчик кандидатов
+                    'places' => $project->places,
+                    'candidates_count' => 0,
                     'title' => $project->title,
                     'candidates' => [],
                     'specialities' => $specialities
@@ -151,35 +130,93 @@ class GetAutoDistributionController extends Controller
                         })->values()->toArray(),
                 ];
             }
-    
-            // добавляем кандидата в проект
+
             $structure[$institute->id]['departments'][$department->id]['projects'][$project->id]['candidates'][] = [
                 'candidate_id' => $candidate->id,
                 'training_group' => $candidate['training_group'],
                 'course' => $candidate->course,
                 'fio' => $candidate->fio,
                 'priority' => $participation->priority,
-                'created_at' => $participation->created_at, // ПОМЕНЯТЬ НА UPDATED_AT
+                'created_at' => $participation->created_at,
                 'updated_at' => $participation->updated_at
             ];
-    
-            // счётчик++
+
             $structure[$institute->id]['departments'][$department->id]['projects'][$project->id]['candidates_count']++;
         }
-    
-        // шаг 4: сортировка кандидатов по приоритету и дате обновления в каждом проекте
+
+        // шаг 3: получение пустых проектов
+        $emptyProjectsData = DB::table('projects')
+            ->leftJoin('participations', 'projects.id', '=', 'participations.project_id')
+            ->whereNull('participations.project_id')
+            ->where('projects.state_id', 1)
+            ->join('departments', 'projects.department_id', '=', 'departments.id')
+            ->join('institutes', 'departments.institute_id', '=', 'institutes.id')
+            ->select(
+                'projects.id as project_id',
+                'projects.title as project_title',
+                'projects.places as places',
+                DB::raw('0 as candidates_count'),
+                'departments.id as department_id',
+                'departments.name as department_name',
+                'institutes.id as institute_id',
+                'institutes.name as institute_name'
+            )
+            ->get()
+            ->map(function ($project) {
+                $specialities = DB::table('project_speciality')
+                    ->join('specialities', 'project_speciality.speciality_id', '=', 'specialities.id')
+                    ->where('project_speciality.project_id', $project->project_id)
+                    ->select('specialities.id', 'specialities.name', 'project_speciality.course')
+                    ->get();
+
+                return [
+                    'project_id' => $project->project_id,
+                    'places' => $project->places,
+                    'candidates_count' => $project->candidates_count,
+                    'title' => $project->project_title,
+                    'specialities' => $specialities,
+                    'department_id' => $project->department_id,
+                    'department_name' => $project->department_name,
+                    'institute_id' => $project->institute_id,
+                    'institute_name' => $project->institute_name,
+                    'candidates' => []
+                ];
+            })->toArray();
+
+        // шаг 4: добавление пустых проектов в структуру
+        foreach ($emptyProjectsData as $emptyProject) {
+
+            if (!isset($structure[$emptyProject['institute_id']])) { //при добавлении проектов без заявок в общую структуру проверяем наличие института в структуре
+                $structure[$emptyProject['institute_id']] = [ // в случае отстутствия института -> добавляем
+                    'institute_id' => $emptyProject['institute_id'],
+                    'institute_name' => $emptyProject['institute_name'],
+                    'departments' => []
+                ];
+            }
+
+            if (!isset($structure[$emptyProject['institute_id']]['departments'][$emptyProject['department_id']])) {//при добавлении проектов без заявок в общую структуру проверяем наличие кафыедры в структуре
+                $structure[$emptyProject['institute_id']]['departments'][$emptyProject['department_id']] = [ // в случае отстутствия кафедры -> добавляем
+                    'department_id' => $emptyProject['department_id'],
+                    'department_name' => $emptyProject['department_name'],
+                    'projects' => []
+                ];
+            }
+
+            $structure[$emptyProject['institute_id']]['departments'][$emptyProject['department_id']]['projects'][$emptyProject['project_id']] = $emptyProject; //добавление проекта без заявок в общую структуру
+        }
+
+        // шаг 5: сортировка кандидатов по приоритету и дате обновления в каждом проекте
         foreach ($structure as &$institute) {
             foreach ($institute['departments'] as &$department) {
                 foreach ($department['projects'] as &$project) {
-                    // сортировка
-                    $project['candidates'] = collect($project['candidates'])->sortBy(function ($candidate) {  // массив -> в коллекцию Laravel для кастомной сортировки
-                        return [$candidate['priority'], $candidate['updated_at']]; //сортировка по priority и updated_at
-                    })->values()->toArray(); // возвращаем в массив
+                    $project['candidates'] = collect($project['candidates'])->sortBy(function ($candidate) {
+                        return [$candidate['priority'], $candidate['updated_at']];
+                    })->values()->toArray();
                 }
             }
         }
-    
-        // шаг 5: преобразуем ассоциативные массивы в индексированные
+
+        // шаг 6: преобразуем ассоциативные массивы в индексированные
         $structure = array_values(array_map(function ($institute) {
             $institute['departments'] = array_values(array_map(function ($department) {
                 $department['projects'] = array_values($department['projects']);
@@ -187,13 +224,13 @@ class GetAutoDistributionController extends Controller
             }, $institute['departments']));
             return $institute;
         }, $structure));
-           
 
         $jsonFilePath = '1_projects_structure.json';
-        Storage::put($jsonFilePath, json_encode($structure, JSON_PRETTY_PRINT));    
-        
+        Storage::put($jsonFilePath, json_encode($structure, JSON_PRETTY_PRINT));
+
         return $structure;
-    }   
+    }
+   
     
     //получение дубликатов
     public function getAndSaveDuplicates()
@@ -284,6 +321,4 @@ class GetAutoDistributionController extends Controller
     
         return $result;
     }  
-
-
 }

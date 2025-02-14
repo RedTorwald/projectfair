@@ -44,11 +44,6 @@ class UpdateDistributionController extends Controller
 
         // Шаг 8: распределение молчунов
         $this->clearCandidates();
-        
-        /*
-        $filePath = Storage::exists('6_manual.json') 
-        ? '6_manual.json'
-        : '3_updated.json';*/
 
 
         $filePath = '3_1_updated.json';

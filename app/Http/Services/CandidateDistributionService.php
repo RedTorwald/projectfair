@@ -146,13 +146,14 @@ class CandidateDistributionService
         return $projectsData; 
     }
 
+    /*
     //метод 3. получение лишних кандидатов
     public function collectExcessParticipations(string $filePath, string $filteredFilePath)
     {        
         $jsonData = Storage::get($filePath);
         $structure = collect(json_decode($jsonData, true));
         
-        // Массив для хранения лишних заявок. Не попавших на проект
+        // массив для хранения лишних заявок. Не попавших на проект
         $excessParticipations = [];        
         
         $filteredStructure = $structure->map(function ($institute) use (&$excessParticipations) {
@@ -246,8 +247,113 @@ class CandidateDistributionService
         return response()->json([
             'data' => $result,
         ]);
-    }
+    }*/
     
+    
+    
+    //метод 3. получение лишних кандидатов
+    public function collectExcessParticipations(string $filePath, string $filteredFilePath)
+    {        
+        $jsonData = Storage::get($filePath);
+        $structure = collect(json_decode($jsonData, true));
+        
+        // Массив для хранения лишних заявок. Не попавших на проект
+        $excessParticipations = [];        
+        
+        $filteredStructure = $structure->map(function ($institute) use (&$excessParticipations) {
+            $filteredDepartments = collect($institute['departments'])->map(function ($department) use (&$excessParticipations) {
+                $filteredProjects = collect($department['projects'])->map(function ($project) use (&$excessParticipations) {
+
+                    $placesCount = $project['places'];    
+                    // получаем связанный проект через модель
+                    $projectModel = Project::find($project['project_id']); // Найдем проект по его ID
+                    if (!$projectModel) {
+                        return; // Пропустим, если проект не найден
+                    }
+
+                    // разделяем кандидатов на тех, кто помещается в проект, и кто не помещается
+                    $teamCandidates = collect($project['candidates'])->take($placesCount);
+                    $excessCandidates = collect($project['candidates'])->slice($placesCount);
+
+                    // проходим по лишним кандидатам и добавляем их в excess_participations
+                    $excessCandidates->each(function ($candidate) use (&$excessParticipations) {
+                        $candidateModel = Candidate::find($candidate['candidate_id']); 
+                        if (!$candidateModel) {
+                            return; 
+                        }
+
+                        // получение специальности кандидата с помощью метода getSpeciality() по id
+                        $speciality = $candidateModel->getSpeciality()->id; 
+                        $speciality_name = $candidateModel->getSpeciality()->name; 
+
+                        // получение департамента кандидата через специальность
+                        $departmentModel = $candidateModel->getSpeciality()->department;
+                        $instituteModel = $departmentModel->institute;
+
+                        // добавляем лишнюю заявку в excess_participations
+                        $excessParticipations[] = [
+                            'candidate_id' => $candidateModel->id,
+                            'fio' => $candidateModel->fio,
+                            'training_group' => $candidateModel->training_group,
+                            'priority' => $candidate['priority'], 
+                            'course' => $candidate['course'],                                                                 
+                            'department_id' => $departmentModel->id,
+                            'department_name' => $departmentModel->name,
+                            'institute_id' => $instituteModel->id,
+                            'institute_name' => $instituteModel->name,
+                            'speciality_id' => $speciality,  // специальность кандидата
+                            'speciality_name' => $speciality_name,
+                            'created_at' => $candidate['created_at'],
+                        ];
+                    });    
+                    
+                    return [
+                        'project_id' => $projectModel->id,
+                        'title' => $project['title'],
+                        'places' => $project['places'],
+                        'candidates_count' => $teamCandidates->count(),
+                        'candidates' => $teamCandidates->values()->toArray(), 
+                        'specialities' => $project['specialities'],
+                    ];
+                });
+
+                
+                return [
+                    'department_id' => $department['department_id'],
+                    'department_name' => $department['department_name'],
+                    'projects' => $filteredProjects->toArray(),
+                ];
+            });
+                
+            return [
+                'institute_id' => $institute['institute_id'],
+                'institute_name' => $institute['institute_name'],
+                'departments' => $filteredDepartments->toArray(),
+            ];
+        });
+
+        
+        //удаление лишних заявок, которые прошли на проект
+        $excessParticipations = $this->removeDuplicateExcessParticipations($filteredStructure, collect($excessParticipations));
+        // удаляем дубликаты кандидатов
+        $uniqueExcessParticipations = $this->removeDuplicatesFromExcessParticipations($excessParticipations);
+
+        // формируем результат с обновленными проектами и лишними заявками
+        $result = [
+            'projects' => $filteredStructure->toArray(),
+            'excess_participations' => $uniqueExcessParticipations->values()->toArray(), // Используем values() для сброса ключей
+        ];        
+    
+        Storage::put($filteredFilePath, json_encode($result, JSON_PRETTY_PRINT));
+        
+        
+        return response()->json([
+            'data' => $result,
+        ]);
+    }
+
+
+
         
     //метод 4. удаление лишних заявок, которые прошли на проект
     public function removeDuplicateExcessParticipations($projects, $excessParticipations)

@@ -52,6 +52,7 @@ class Project extends Model
         return $this->hasMany(Participation::class, 'project_id');
     }
 
+    
     /**
      * Получить состояние проекта
      */

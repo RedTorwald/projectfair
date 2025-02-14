@@ -189,50 +189,36 @@ Route::get('/participationsDeadline', App\Http\Controllers\Participation\DeadLin
 
 
 Route::group(['prefix' => 'arm'], function () {
-    Route::patch('/projects/distribution', App\Http\Controllers\ArmDistribution\UpdateDistributionController::class);
-    Route::get('/projects', App\Http\Controllers\ArmDistribution\GetAutoDistributionController::class);
-    Route::get('/candidates', App\Http\Controllers\ArmDistribution\GetCandidatesController::class);
-    Route::get('/manualDistribution', App\Http\Controllers\ArmDistribution\GetManualDistributionController::class);
+    
+    Route::get('/projects', App\Http\Controllers\ArmDistribution\GetAutoDistributionController::class); // автоматическое формирование проектных команд
+    Route::patch('/projects/distribution', App\Http\Controllers\ArmDistribution\UpdateDistributionController::class); // внесение изменений при автоматическом формировании 
+
+    Route::get('/candidates', App\Http\Controllers\ArmDistribution\GetCandidatesController::class); // получение нераспределенных студентов
+
+    Route::get('/approveDistribution', App\Http\Controllers\ArmDistribution\GetApproveDistributionController::class); // отправка json файла со студентами
+
+
+    Route::get('/manualDistribution', App\Http\Controllers\ArmDistribution\GetManualDistributionController::class); // ручное распределение
     Route::patch('/manualDistribution', App\Http\Controllers\ArmDistribution\UpdateManualDistributionController::class);
-    Route::get('/eraseDistribution', App\Http\Controllers\ArmDistribution\GetExistenceController::class); // гет для проверки
+
+
+    Route::get('/eraseDistribution', App\Http\Controllers\ArmDistribution\GetExistenceController::class); // гет для проверки наличия файлов с предыдущим распределением
     Route::post('/eraseDistribution', App\Http\Controllers\ArmDistribution\PostEraseDistributionController::class); // пост для удаления
-    Route::get('/manualDistribution/back', App\Http\Controllers\ArmDistribution\UpdateLastManualActionController::class); // для лога
+
+
+    Route::get('/manualDistribution/back', App\Http\Controllers\ArmDistribution\UpdateLastManualActionController::class); // логирование ручного распределения
+
+
+    Route::get('/finalDistribution', App\Http\Controllers\ArmDistribution\GetFinalDistributionController::class);
+
+    Route::post('/exportCandidates', App\Http\Controllers\ArmDistribution\ExportCandidatesController::class);  //экспорт в БД
+    Route::delete('/cancelExportCandidates', App\Http\Controllers\ArmDistribution\CancelExportController::class); //откат экспорта
 });
 
-//-----------------------------------------------------------------------------------
-    Route::patch('/arm/projects/distribution', App\Http\Controllers\ArmDistribution\UpdateDistributionController::class);
-
-
-    Route::get('/arm/projects', App\Http\Controllers\ArmDistribution\GetAutoDistributionController::class); // автоматическое формирование проектных команд
-
-    Route::get('/arm/candidates', App\Http\Controllers\ArmDistribution\GetCandidatesController::class); // получение нераспределенных студентов
-
-    Route::get('/arm/approveDistribution', App\Http\Controllers\ArmDistribution\GetApproveDistributionController::class); // со студентами
-
-
-    Route::get('/arm/manualDistribution', App\Http\Controllers\ArmDistribution\GetManualDistributionController::class);
-    Route::patch('/arm/manualDistribution', App\Http\Controllers\ArmDistribution\UpdateManualDistributionController::class);
-
-
-    Route::get('/arm/eraseDistribution', App\Http\Controllers\ArmDistribution\GetExistenceController::class); // гет для проверки наличия файлов с предыдущим распределением
-    Route::post('/arm/eraseDistribution', App\Http\Controllers\ArmDistribution\PostEraseDistributionController::class); // пост для удаления
-
-
-    Route::get('/arm/manualDistribution/back', App\Http\Controllers\ArmDistribution\UpdateLastManualActionController::class); // для лога
-
-
-    Route::get('/arm/finalDistribution', App\Http\Controllers\ArmDistribution\GetFinalDistributionController::class);
-
-    Route::post('/arm/exportCandidates', App\Http\Controllers\ArmDistribution\ExportCandidatesController::class);
-    Route::delete('/arm/cancelExportCandidates', App\Http\Controllers\ArmDistribution\CancelExportController::class);
-
-
 //-------------------------------------------------------------------------------
+//Route::get('/test', App\Http\Controllers\UpdateProjectStateController::class);
+
 
 /*
 Route::get('/arm', App\Http\Controllers\GetTestController::class);*/
-
-
-
-
-Route::get('/docs', App\Http\Controllers\DocumentController::class); // контроллер для перевода отчетности в БД
+//Route::get('/docs', App\Http\Controllers\DocumentController::class); // контроллер для перевода отчетности в БД
