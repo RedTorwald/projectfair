@@ -76,6 +76,8 @@ Route::group(['prefix' => 'director'], function () {
     Route::patch('/projects/{project}', App\Http\Controllers\Supervisor\Director\Projects\UpdateController::class)->middleware(SupervisorAuthProtected::class);
     Route::get('/projects', App\Http\Controllers\Supervisor\Director\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);
     Route::get('/projects/report', App\Http\Controllers\Admin\Project\ReportController::class)->middleware(SupervisorAuthProtected::class);
+
+    Route::get('/projects/active', App\Http\Controllers\Supervisor\Director\Projects\GetActiveProjectsController::class)->middleware(SupervisorAuthProtected::class);
 });
 
 // --------- SUPERVISORS CABINET ROUTES ---------
@@ -91,11 +93,7 @@ Route::group(['prefix' => 'supervisor'], function () {
     Route::patch('/projects/{project}', App\Http\Controllers\Supervisor\Projects\UpdateController::class)->middleware(SupervisorAuthProtected::class);
     Route::delete('/projects/{project}', App\Http\Controllers\Supervisor\Projects\DeleteController::class)->middleware(SupervisorAuthProtected::class);
 
-    Route::get('/project/supervisors', App\Http\Controllers\Supervisor\Experts\IndexController::class)->middleware(SupervisorAuthProtected::class);
-
-  //  Route::get('/projects/report', App\Http\Controllers\Admin\Project\ReportController::class)
-   // ->middleware(SupervisorAuthProtected::class)
-    ;
+    Route::get('/project/supervisors', App\Http\Controllers\Supervisor\Experts\IndexController::class)->middleware(SupervisorAuthProtected::class);  
 
 });
 
@@ -216,9 +214,12 @@ Route::group(['prefix' => 'arm'], function () {
 });
 
 //-------------------------------------------------------------------------------
-//Route::get('/test', App\Http\Controllers\UpdateProjectStateController::class);
+/*
+Route::get('/test/proj', App\Http\Controllers\UpdateProjectStateController::class);
 
-
+Route::get('/test', App\Http\Controllers\GetCandidateProjectController::class);
+Route::patch('/t/update', App\Http\Controllers\UpdateCandidateProjectController::class);*/
 /*
 Route::get('/arm', App\Http\Controllers\GetTestController::class);*/
 //Route::get('/docs', App\Http\Controllers\DocumentController::class); // контроллер для перевода отчетности в БД
+

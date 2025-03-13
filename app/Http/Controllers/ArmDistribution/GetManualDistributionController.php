@@ -74,6 +74,7 @@ class GetManualDistributionController extends Controller
                                             'project_title' => $project['title'],
                                             'places' => $project['places'],
                                             'candidates_count' => $project['candidates_count'],
+                                            'specialities' => $project['specialities'],
                                         ];
                                     }
                                 }
@@ -153,6 +154,7 @@ class GetManualDistributionController extends Controller
                             'project_title' => $emptyProject['title'],
                             'places' => $emptyProject['places'],
                             'candidates_count' => $emptyProject['candidates_count'],
+                            
                         ];
                     }
                 }

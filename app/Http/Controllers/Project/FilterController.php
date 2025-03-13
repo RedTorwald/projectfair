@@ -189,8 +189,11 @@ class FilterController extends Controller
         $dateEnd = $request->input('date_end') ?? '';
         $skills = $this->stringToIntArray($request->input('skills'));
 
-        $specialities = $this->stringToIntArray($request->input('specialties'));
+        $specialities = $this->stringToIntArray($request->input('specialties')); 
         $candidate = $request->get('candidate');
+
+       $supervisors = $this->stringToIntArray($request->input('supervisors'));        
+
 
         if (isset($candidate)) {
             $candidateInsitute = $candidate->getInstitute();
@@ -211,6 +214,7 @@ class FilterController extends Controller
             dateEnd: $dateEnd,
             skillIds: $skills,
             specialityIds: $specialities,
+            supervisorIds: $supervisors,
         );
 
         $projectCollection = $this->sortProjects($request, $projectCollection);

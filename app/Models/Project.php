@@ -269,4 +269,11 @@ class Project extends Model
 
         return $query;
     }
+
+    public function scopeInSupervisors($query, array $supervisorIds)
+    {
+        return $query->whereHas('supervisors', function ($q) use ($supervisorIds) {
+            $q->whereIn('supervisors.id', $supervisorIds); 
+        });
+    }
 }

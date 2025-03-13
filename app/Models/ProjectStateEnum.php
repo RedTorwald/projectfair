@@ -62,6 +62,14 @@ enum ProjectStateEnum: int
         return  [static::onReview->value, static::rejected->value, static::approved->value];
     }
 
+
+    /** Получить активное состояние*/
+    public static function getDirectorCabinetActiveStatesIds(): array
+    {
+        return  [static::active->value, static::recruitment->value, static::participationProcessing->value];
+    }
+
+    
     /** Получить все данные состояний */
     public static function getAllProjectStatesData(): array
     {

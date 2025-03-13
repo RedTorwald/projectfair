@@ -247,9 +247,6 @@ class CandidateDistributionService
         ]);
     }
 
-
-
-        
     //метод 4. удаление лишних заявок, которые прошли на проект
     public function removeDuplicateExcessParticipations($projects, $excessParticipations)
     {
@@ -294,17 +291,6 @@ class CandidateDistributionService
         $currentMonth = now()->month; 
         $currentTime = now();         
         $semesterMonth = ($currentMonth > 1 && $currentMonth < 9) ? 2 : 9;
-
-
-
-        /*
-
-        $currentYear = 2024; // получение текущего года
-       
-        $semesterMonth =9; */
-
-
-        
 
         $projects = $data['projects'];
         $excessParticipations = $data['excess_participations'];
@@ -377,8 +363,10 @@ class CandidateDistributionService
             $candidateInstitute = $candidate['institute_id'];
             $candidateDepartment = $candidate['department_id'];
             $candidateSpecialityId = $candidate['speciality_id'];
-
+            
             $candidateCourse = $candidate['course'];
+
+            
            
 
             $eligibleProjects = [];  //подходящие проекты по институту, департаменту и специальности
@@ -421,6 +409,9 @@ class CandidateDistributionService
                         'priority' => $candidate['priority'],
                         'state_id' => 1, // state_id 1 
                         'created_at' => now()->toDateTimeString(),
+                        'institute_id' => $candidateInstitute,
+                        'department_id' =>  $candidateDepartment,
+                        'speciality_id' => $candidateSpecialityId, 
                     ];
                     
                     $selectedProject['candidates_count']++; // увеличиваем счетчик
@@ -490,6 +481,9 @@ class CandidateDistributionService
                         'priority' => $candidate['priority'],
                         'state_id' => 1, 
                         'created_at' => now()->toDateTimeString(),
+                        'institute_id' =>  $candidateInstitute,
+                        'department_id' =>  $candidateDepartment,
+                        'speciality_id' => $candidateSpecialityId, 
                     ];
 
                     
@@ -615,8 +609,7 @@ class CandidateDistributionService
                 }
             }
         }
-
-        // Сохраняем обновлённые данные в указанный файл
+        
         Storage::put($outputFilePath, json_encode($projectsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         return $projectsData;

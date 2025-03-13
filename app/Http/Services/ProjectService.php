@@ -13,6 +13,7 @@ class ProjectService
 {
 
     /** Получить проекты с фильтрацией */
+    /*
     public function filter(
         ?array $difficulties = null,
         ?string $title = null,
@@ -22,7 +23,8 @@ class ProjectService
         ?string $dateStart = null,
         ?string $dateEnd = null,
         ?array $skillIds = null,
-        ?string $nativeInstituteId = null
+        ?string $nativeInstituteId = null,
+        ?string $supervisorIds = null,
     ): Collection {
         return Project::with('skills', 'specialities', 'type',  'supervisors')
             ->inDifficulties($difficulties)
@@ -33,7 +35,38 @@ class ProjectService
             ->inSpecialities($specialityIds)
             ->inSkills($skillIds)
             ->inNativeInstitute($nativeInstituteId)
+            ->inSupervisors($supervisorIds)
             ->get();
+    }*/
+
+    public function filter(
+        ?array $difficulties = null,
+        ?string $title = null,
+        ?array $stateIds = null,
+        ?array $typeIds = null,
+        ?array $specialityIds = null,
+        ?string $dateStart = null,
+        ?string $dateEnd = null,
+        ?array $skillIds = null,
+        ?string $nativeInstituteId = null,
+        ?array $supervisorIds = null 
+    ): Collection {
+        $query = Project::with('skills', 'specialities', 'type', 'supervisors')
+            ->inDifficulties($difficulties)
+            ->inTitle($title)
+            ->inStates($stateIds)
+            ->inTypes($typeIds)
+            ->inDates($dateStart, $dateEnd)
+            ->inSpecialities($specialityIds)
+            ->inSkills($skillIds)
+            ->inNativeInstitute($nativeInstituteId);
+    
+        // Проверка, чтобы метод не вызывался при пустом массиве
+        if (!empty($supervisorIds)) {
+            $query->inSupervisors($supervisorIds);
+        }
+    
+        return $query->get();
     }
 
     /** Создать проект */

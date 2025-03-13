@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\ArmDistribution;
 
 use App\Http\Controllers\Controller;
-use App\Models\Participation;
 use App\Http\Services\CandidateDistributionService;
 use Illuminate\Support\Facades\Storage;
 

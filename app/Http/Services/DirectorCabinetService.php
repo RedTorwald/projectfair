@@ -24,6 +24,19 @@ class DirectorCabinetService
         return $this->projectService->filter(stateIds: $stateIds, nativeInstituteId: $instituteId);
     }
 
+
+    /** Получить активные проекты */
+    public function getActiveProjects(Supervisor $director): Collection
+    {
+
+        $instituteId = $director->department->institute->id;
+        $stateIds = ProjectStateEnum::getDirectorCabinetActiveStatesIds();
+
+
+        return $this->projectService->filter(stateIds: $stateIds, nativeInstituteId: $instituteId);
+    }
+
+
     /** Дать ревью на заявку создания проекта от преподавателя. Одобрить или нет */
     public function reviewProject(array $data, Project $project): Project | null
     {

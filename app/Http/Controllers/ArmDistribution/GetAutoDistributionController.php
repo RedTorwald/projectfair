@@ -86,7 +86,12 @@ class GetAutoDistributionController extends Controller
             $institute = $participation->project->department->institute;
             $department = $participation->project->department;
             $project = $participation->project;
-            $candidate = $participation->candidate;
+            $candidate = $participation->candidate;        
+
+            $departmentModel = $candidate->getSpeciality()->department;
+            $instituteModel = $departmentModel->institute;
+
+            $speciality = $candidate->getSpeciality();
 
             // проверка на наличие института в структуре
             if (!isset($structure[$institute->id])) {
@@ -136,9 +141,15 @@ class GetAutoDistributionController extends Controller
                 'training_group' => $candidate['training_group'],
                 'course' => $candidate->course,
                 'fio' => $candidate->fio,
-                'priority' => $participation->priority,
+                
                 'created_at' => $participation->created_at,
-                'updated_at' => $participation->updated_at
+                'updated_at' => $participation->updated_at,
+                'institute_id' =>  $instituteModel->id,
+                'priority' => $participation->priority,
+                'department_id' =>  $departmentModel->id,
+
+                'speciality_id' =>   $speciality->id,
+                'stranger' => ($institute->id === $instituteModel->id) ? 0 : 1,
             ];
 
             $structure[$institute->id]['departments'][$department->id]['projects'][$project->id]['candidates_count']++;
