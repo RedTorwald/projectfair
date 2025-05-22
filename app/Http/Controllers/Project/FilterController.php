@@ -171,29 +171,35 @@ class FilterController extends Controller
      */
     public function __invoke(Request $request)
     {
+        // $candinfo = var_dump(implode($request-> all()));
+        // print($candinfo);
+        $isTeacher = $request->cookie('is_teacher') === '1' || $request->cookie('is_teacher') === true;
+        $isStudent = $request->cookie('is_student') === '1' || $request->cookie('is_student') === true;
+        $isAuth = $isTeacher || $isStudent;
 
         $difficulties = $this->stringToIntArray($request->input('difficulty'));
         $title = $request->input('title') ?? '';
-        $publicStates = ProjectStateEnum::getPublicStatesIds();
         $states = $this->stringToIntArray($request->input('state'));
-        if (isset($states) && count($states) != 0) {
-            $states = array_intersect($publicStates, $states);
+        $publicStates = ProjectStateEnum::getPublicStatesIds();
+
+        $allowedStudentStates = [1, 2, 4, 5];
+
+        if ($isTeacher) {
+            $states = empty($states) ? null : $states;
+        } elseif ($isStudent) {
+            $states = empty($states) ? $allowedStudentStates : array_intersect($allowedStudentStates, $states);
         } else {
-            $states = $publicStates;
+            $states = !empty($states) ? array_intersect($publicStates, $states) : $publicStates;
         }
-
+        
+        
         $types = $this->stringToIntArray($request->input('type'));
-
-
         $dateStart = $request->input('date_start') ?? '';
         $dateEnd = $request->input('date_end') ?? '';
         $skills = $this->stringToIntArray($request->input('skills'));
-
-        $specialities = $this->stringToIntArray($request->input('specialties')); 
+        $specialities = $this->stringToIntArray($request->input('specialties'));
         $candidate = $request->get('candidate');
-
-       $supervisors = $this->stringToIntArray($request->input('supervisors'));        
-
+        $supervisors = $this->stringToIntArray($request->input('supervisors'));
 
         if (isset($candidate)) {
             $candidateInsitute = $candidate->getInstitute();
@@ -216,13 +222,33 @@ class FilterController extends Controller
             specialityIds: $specialities,
             supervisorIds: $supervisors,
         );
-
-        $projectCollection = $this->sortProjects($request, $projectCollection);
-
+    
+        $projectCollection = $isAuth
+        ? $this->sortProjects($request, $projectCollection)
+        : $this->randomizeProjects($projectCollection);
+    
         $projectCount = count($projectCollection);
         $projectCollection = $this->paginateProjects($request, $projectCollection);
-    //    return response()->json(['data' => ProjectResource::collection($projectCollection), 'projectCount' => $projectCount])->setStatusCode(200);
-        return response()->json(['data' => StartPageResource::collection($projectCollection), 'projectCount' => $projectCount])->setStatusCode(200);
+    
+        return response()->json([
+            'data' => StartPageResource::collection($projectCollection),
+            'projectCount' => $projectCount,
+            'auth_status' => [
+                'is_teacher' => $isTeacher,
+                'is_student' => $isStudent
+            ]
+        ])->setStatusCode(200);
+    }
+
+    private function randomizeProjects(Collection $projectCollection): Collection
+    {
+        $archivedStateId = ProjectStateEnum::arhive->value;
+
+        $archivedProjects = $projectCollection->filter(function (Project $project) use ($archivedStateId) {
+            return $project->state_id === $archivedStateId;
+        });
+    
+        return $archivedProjects->shuffle();
     }
 
     private function sortProjects(Request $request, Collection $projectCollection): Collection
