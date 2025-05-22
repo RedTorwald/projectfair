@@ -12,7 +12,7 @@ class SupervisorCabinetService
     {
     }
 
-    /** Создать проект от преподавателя */
+    /** Удалить проект от преподавателя */
     public function deleteProject(Project $project): void
     {
         $project->delete();
