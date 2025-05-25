@@ -9,6 +9,72 @@ use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 
 
+/**
+ * @OA\Get(
+ *     path="/arm/manualDistribution",
+ *     summary="Ручное распределение кандидатов по проектам",
+ *     description="Получение кандидатов и подходящих для них проектов",
+ *     operationId="getManualDistribution",
+ *     tags={"ARM Distribution"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешное распределение кандидатов по проектам",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="candidates",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="candidate_id", type="integer", example=1),
+ *                     @OA\Property(property="fio", type="string", example="Иванов Иван Иванович"),
+ *                     @OA\Property(property="course", type="string", example="1 курс"),
+ *                     @OA\Property(property="training_group", type="string", example="Группа A"),
+ *                     @OA\Property(property="priority", type="integer", example=1),
+ *                     @OA\Property(property="institute_id", type="integer", example=1),
+ *                     @OA\Property(property="institute_name", type="string", example="Институт Name"),
+ *                     @OA\Property(property="department_id", type="integer", example=1),
+ *                     @OA\Property(property="department_name", type="string", example="Кафедра Name"),
+ *                     @OA\Property(property="speciality_id", type="integer", example=101),
+ *                     @OA\Property(property="speciality_name", type="string", example="Программирование"),
+ *                     @OA\Property(property="eligible_projects_ids", type="array", @OA\Items(type="integer"), example={1001, 1002})
+ *                 )
+ *             ),
+ *             @OA\Property(
+ *                 property="eligible_projects",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="project_id", type="integer", example=1001),
+ *                     @OA\Property(property="project_title", type="string", example="Проект по программированию"),
+ *                     @OA\Property(property="places", type="integer", example=3),
+ *                     @OA\Property(property="candidates_count", type="integer", example=1)
+ *                 )
+ *             ),
+ *             @OA\Property(
+ *                 property="empty_projects",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="project_id", type="integer", example=1003),
+ *                     @OA\Property(property="project_title", type="string", example="Проект по веб-разработке"),
+ *                     @OA\Property(property="places", type="integer", example=5),
+ *                     @OA\Property(property="candidates_count", type="integer", example=0),
+ *                     @OA\Property(property="department_id", type="integer", example=2),
+ *                     @OA\Property(property="department_name", type="string", example="Кафедра Веб-разработки"),
+ *                     @OA\Property(property="institute_id", type="integer", example=2),
+ *                     @OA\Property(property="institute_name", type="string", example="Институт информационных технологий")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при обработке распределения"
+ *     )
+ * )
+ */
+
 class GetManualDistributionController extends Controller
 {
     public function __invoke()

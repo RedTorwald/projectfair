@@ -7,6 +7,46 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Get(
+ *     path="/transfer/active",
+ *     summary="Получить проекты в состоянии 'Обработка'",
+ *     description="Этот метод позволяет получить проекты, находящиеся в состоянии 'Обработка' (state_id = 5), с информацией о проекте и его участниках.",
+ *     operationId="getProcessingProjects",
+ *     tags={"Projects Transfer"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Проекты в состоянии 'Обработка' успешно получены",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer", description="ID проекта"),
+ *                 @OA\Property(property="state_id", type="integer", description="ID состояния проекта"),
+ *                 @OA\Property(property="title", type="string", description="Название проекта"),
+ *                 @OA\Property(
+ *                     property="participations",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="candidate_id", type="integer", description="ID кандидата"),
+ *                         @OA\Property(property="state_id", type="integer", description="Состояние участия кандидата"),
+ *                         @OA\Property(property="project_id", type="integer", description="ID проекта")
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при получении данных"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Ошибка сервера"
+ *     )
+ * )
+ */
 
 class GetProcessingProjectsController extends Controller
 {

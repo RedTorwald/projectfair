@@ -9,24 +9,25 @@ use App\Models\Participation;
 /**
  * Получить все заявки
  */
+
+/**
+ * @OA\Get(
+ *     path="/api/admin/participations",
+ *     summary="Получить все заявки",
+ *     tags={"ADMIN"},
+ *     @OA\Response(
+ *         response="200",
+ *         description="Список всех заявок",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(ref="#/components/schemas/Participation")
+ *         )
+ *     )
+ * )
+ */
 class IndexController extends Controller
 {
-    /**
-     * @OA\Get(
-     *     path="/api/admin/participations",
-     *     summary="Получить все заявки",
-     *      tags={"ADMIN"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="Список всех заявок",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/Participation")
-     *          )
-     *     ),
-     * )
-     * )
-     */
+  
     public function __invoke()
     {
         $participations = Participation::all();

@@ -9,6 +9,47 @@ use Illuminate\Http\Request;
 use App\Models\Participation;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @OA\Post(
+ *     path="/transfer/students/participations",
+ *     summary="Создание или перевод заявки кандидата на проект",
+ *     description="Этот метод позволяет создать новую заявку кандидата на проект или обновить существующую заявку, в зависимости от текущего состояния.",
+ *     operationId="makeParticipation",
+ *     tags={"Participation Transfer"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"candidate_id", "project_id", "reason_message"},
+ *             @OA\Property(property="candidate_id", type="integer", example=123),
+ *             @OA\Property(property="project_id", type="integer", example=1001),
+ *             @OA\Property(property="reason_message", type="string", example="Причина изменения заявки")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Заявка успешно создана или обновлена",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string", example="Новая заявка успешно создана"),
+ *             @OA\Property(property="new_participation", type="object",
+ *                 @OA\Property(property="id", type="integer", example=1),
+ *                 @OA\Property(property="candidate_id", type="integer", example=123),
+ *                 @OA\Property(property="project_id", type="integer", example=1001),
+ *                 @OA\Property(property="state_id", type="integer", example=1),
+ *                 @OA\Property(property="priority", type="integer", example=1),
+ *                 @OA\Property(property="created_at", type="string", format="date-time", example="2025-05-22T10:00:00Z"),
+ *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2025-05-22T10:00:00Z")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка в запросе"
+ *     ) 
+ * )
+ */
+
 class MakeParticipationController extends Controller
 {
     public function __invoke(Request $request): JsonResponse

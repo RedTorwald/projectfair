@@ -9,6 +9,40 @@ use App\Models\Participation;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @OA\Post(
+ *     path="/transfer/active/update",
+ *     summary="Обновить проекты и участников в состояние 'Активное'",
+ *     description="Этот метод обновляет проекты и их участников, переводя проекты в состояние 'Активное' (state_id = 2). Участники, которые находятся в состоянии 'Подано' (state_id = 1), изменяются на состояние 'Отказано' (state_id = 4). Удаляются все заявки с состоянием 'Подано' (state_id = 1), которые не имеют альтернативных заявок на тот же проект с состоянием 'Отказано' (state_id = 4).",
+ *     operationId="updateToActiveState",
+ *     tags={"Projects Transfer"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Проекты и участники успешно обновлены",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="updated_projects", type="array", description="Обновленные проекты",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="id", type="integer", description="ID проекта"),
+ *                     @OA\Property(property="state_id", type="integer", description="Состояние проекта"),
+ *                     @OA\Property(property="title", type="string", description="Название проекта")
+ *                 )
+ *             ),
+ *             @OA\Property(property="updated_count", type="integer", description="Количество обновленных проектов")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при обновлении проектов"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Ошибка сервера"
+ *     )
+ * )
+ */
+
 class UpdateToActiveStateController extends Controller
 
 {

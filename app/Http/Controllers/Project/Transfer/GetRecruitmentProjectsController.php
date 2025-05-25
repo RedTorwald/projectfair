@@ -7,6 +7,46 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Get(
+ *     path="/transfer/processing",
+ *     summary="Получить проекты в состоянии 'Набор'",
+ *     description="Этот метод возвращает проекты, находящиеся в состоянии 'Набор' (state_id = 1), а также информацию о кандидатах, которые участвуют в этих проектах.",
+ *     operationId="getRecruitmentProjects",
+ *     tags={"Projects Transfer"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешно получены проекты",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer", description="ID проекта"),
+ *                 @OA\Property(property="state_id", type="integer", description="ID состояния проекта"),
+ *                 @OA\Property(property="title", type="string", description="Название проекта"),
+ *                 @OA\Property(
+ *                     property="participations",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="candidate_id", type="integer", description="ID кандидата"),
+ *                         @OA\Property(property="state_id", type="integer", description="ID состояния заявки кандидата")
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при загрузке или обработке данных"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Ошибка сервера"
+ *     )
+ * )
+ */
+
 class GetRecruitmentProjectsController extends Controller
 {
     public function __invoke()

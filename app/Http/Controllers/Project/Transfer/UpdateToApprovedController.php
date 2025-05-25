@@ -10,6 +10,27 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+/**
+ * @OA\Post(
+ *     path="/transfer/approved/update",
+ *     summary="Обновить активные проекты в состояние одобрены",
+ *     description="Этот метод обновляет состояние проектов, клонирует их, сохраняет новые проекты в базу данных и изменяет состояние оригинальных проектов.",
+ *     operationId="updateToApprovedProjects",
+ *     tags={"Projects Transfer"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Проекты успешно обновлены, клонированы и сохранены"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при обновлении проектов"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Ошибка сервера"
+ *     )
+ * )
+ */
 
 class UpdateToApprovedController extends Controller
 {

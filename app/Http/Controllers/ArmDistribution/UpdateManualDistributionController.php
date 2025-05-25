@@ -6,6 +6,94 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+
+/**
+ * @OA\Patch(
+ *     path="/arm/manualDistribution",
+ *     summary="Обновление ручного распределения кандидатов по проектам",
+ *     description="Метод обновляет данные о распределении кандидатов по проектам, основываясь на текущем логе и новых данных, переданных в запросе.",
+ *     operationId="updateManualDistribution",
+ *     tags={"ARM Distribution"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="Данные для обновления распределения кандидатов по проектам",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="candidate_id", type="integer", example=123),
+ *                 @OA\Property(property="fio", type="string", example="Иванов Иван Иванович"),
+ *                 @OA\Property(property="priority", type="integer", example=1),
+ *                 @OA\Property(property="selected_project", type="integer", example=10),
+ *                 @OA\Property(property="institute_id", type="integer", example=5),
+ *                 @OA\Property(property="department_id", type="integer", example=2)
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешное обновление ручного распределения кандидатов",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="projects",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="institute_id", type="integer", example=5),
+ *                     @OA\Property(property="departments", type="array", 
+ *                         @OA\Items(
+ *                             type="object",
+ *                             @OA\Property(property="department_id", type="integer", example=2),
+ *                             @OA\Property(property="projects", type="array", 
+ *                                 @OA\Items(
+ *                                     type="object",
+ *                                     @OA\Property(property="project_id", type="integer", example=10),
+ *                                     @OA\Property(property="candidates", type="array",
+ *                                         @OA\Items(
+ *                                             type="object",
+ *                                             @OA\Property(property="candidate_id", type="integer", example=123),
+ *                                             @OA\Property(property="fio", type="string", example="Иванов Иван Иванович"),
+ *                                             @OA\Property(property="priority", type="integer", example=1),
+ *                                             @OA\Property(property="state_id", type="integer", example=1),
+ *                                             @OA\Property(property="created_at", type="string", format="date-time", example="2025-05-22T14:00:00")
+ *                                         )
+ *                                     ),
+ *                                     @OA\Property(property="candidates_count", type="integer", example=1)
+ *                                 )
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             ),
+ *             @OA\Property(
+ *                 property="excess_participations",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="candidate_id", type="integer", example=123),
+ *                     @OA\Property(property="fio", type="string", example="Иванов Иван Иванович")
+ *                 )
+ *             ),
+ *             @OA\Property(
+ *                 property="without_participation",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="candidate_id", type="integer", example=124),
+ *                     @OA\Property(property="fio", type="string", example="Петров Петр Петрович")
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при обработке распределения"
+ *     )     
+ * )
+ */
+
+
 class UpdateManualDistributionController extends Controller
 {
 

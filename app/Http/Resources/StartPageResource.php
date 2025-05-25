@@ -63,7 +63,7 @@ class StartPageResource extends JsonResource
 /**
  * @OA\Schema()
  */
-class Project extends StartPageResource
+class ProjectStartPage extends StartPageResource
 {
 
     /**

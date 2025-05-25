@@ -5,6 +5,100 @@ namespace App\Http\Controllers\ArmDistribution;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Get(
+ *     path="/arm/approveDistribution",
+ *     summary="Получение итогового распределения",
+ *     description="Контроллер получает данные о кандидатах и подходящих для них проектах на основе существующих распределений. Структура ответа включает институты, кафедры, проекты и кандидатов с массивом подходящих проектных ID.",
+ *     operationId="getCandidateProject",
+ *     tags={"ARM Distribution"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешное получение данных о кандидатах и подходящих проектах",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="projects",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="institute_id", type="integer", example=3),
+ *                     @OA\Property(property="institute_name", type="string", example="Институт высоких технологий"),
+ *                     @OA\Property(
+ *                         property="departments",
+ *                         type="array",
+ *                         @OA\Items(
+ *                             type="object",
+ *                             @OA\Property(property="department_id", type="integer", example=2),
+ *                             @OA\Property(property="department_name", type="string", example="Автоматизации и управления"),
+ *                             @OA\Property(
+ *                                 property="projects",
+ *                                 type="array",
+ *                                 @OA\Items(
+ *                                     type="object",
+ *                                     @OA\Property(property="project_id", type="integer", example=1511),
+ *                                     @OA\Property(property="title", type="string", example="Разработка мобильного приложения для бронирования мест"),
+ *                                     @OA\Property(property="places", type="integer", example=15),
+ *                                     @OA\Property(property="candidates_count", type="integer", example=10),
+ *                                     @OA\Property(
+ *                                         property="candidates",
+ *                                         type="array",
+ *                                         @OA\Items(
+ *                                             type="object",
+ *                                             @OA\Property(property="candidate_id", type="integer", example=4071),
+ *                                             @OA\Property(property="training_group", type="string", example="АСУб-21-2"),
+ *                                             @OA\Property(property="course", type="integer", example=4),
+ *                                             @OA\Property(property="fio", type="string", example="Андреев Андрей Андреевич"),
+ *                                             @OA\Property(property="created_at", type="string", format="date-time", example="2025-02-04T14:49:35.000000Z"),
+ *                                             @OA\Property(property="updated_at", type="string", format="date-time", example="2025-02-04T23:37:13.000000Z"),
+ *                                             @OA\Property(property="institute_id", type="integer", example=4),
+ *                                             @OA\Property(property="priority", type="integer", example=1),
+ *                                             @OA\Property(property="department_id", type="integer", example=59),
+ *                                             @OA\Property(property="speciality_id", type="integer", example=4),
+ *                                             @OA\Property(property="stranger", type="integer", example=1),
+ *                                             @OA\Property(
+ *                                                 property="eligible_projects_ids",
+ *                                                 type="array",
+ *                                                 @OA\Items(type="integer", example=1524)
+ *                                             )
+ *                                         )
+ *                                     )
+ *                                 )
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             ),
+ *             @OA\Property(
+ *                 property="eligible_projects",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="project_id", type="integer", example=1511),
+ *                     @OA\Property(property="project_title", type="string", example="Разработка мобильного приложения"),
+ *                     @OA\Property(property="places", type="integer", example=15),
+ *                     @OA\Property(property="candidates_count", type="integer", example=10),
+ *                     @OA\Property(
+ *                         property="specialities",
+ *                         type="array",
+ *                         @OA\Items(
+ *                             type="object",
+ *                             @OA\Property(property="id", type="integer", example=101),
+ *                             @OA\Property(property="name", type="string", example="Программирование")
+ *                         )
+ *                     ),
+ *                     @OA\Property(property="institute_id", type="integer", example=3),
+ *                     @OA\Property(property="department_id", type="integer", example=2)
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при обработке запроса"
+ *     )
+ * )
+ */
 
 class GetCandidateProjectController extends Controller
 {
@@ -19,19 +113,7 @@ class GetCandidateProjectController extends Controller
             : '2_distribution.json');
 
         $outputFilePath = '6_final_distribution.json';
-
-       /*
-        $filePath = Storage::exists('3_updated.json') 
-            ? '3_updated.json' 
-            : '2_distribution.json';
-
-
-        $outputFilePath = '10_test.json';*/
-
-        
-       
-
-        
+  
         $jsonData = json_decode(Storage::get($filePath), true);
 
         

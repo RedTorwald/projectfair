@@ -7,26 +7,30 @@ use App\Http\Resources\SupervisorResource;
 use App\Models\Supervisor;
 
 /**
- * Получение всех преподавателей
+ * Контроллер для работы с преподавателями
+ *
+ * @OA\Tag(
+ *     name="Supervisor",
+ *     description="Операции с преподавателями"
+ * )
  */
 class IndexController extends Controller
 {
     /**
-     * @OA\Get(
-     *     path="/api/supervisors/",
-     *     summary="Получить всех преподавателей",
-     *      tags={"Supervisor"},
-     *     @OA\Response(
-     *         response="200",
-     *         description="все преподаватели",
+     * Получение всех преподавателей
      *
+     * @OA\Get(
+     *     path="/api/supervisors",
+     *     summary="Получить всех преподавателей",
+     *     tags={"Supervisor"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Список всех преподавателей",
      *         @OA\JsonContent(
-     *              type="array",
-     *                  @OA\Items(
-     *                 ref="#/components/schemas/Supervisor"
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Supervisor")
      *         )
-     * )
-     *     ),
+     *     )
      * )
      */
     public function __invoke()

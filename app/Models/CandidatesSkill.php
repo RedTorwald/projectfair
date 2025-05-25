@@ -13,3 +13,12 @@ class CandidatesSkill extends Model
 
     public $timestamps = false;
 }
+/*
+class CandidatesSkill extends Model
+{
+    use HasFactory;
+
+    protected $guarded = false;
+
+    public $timestamps = false;
+}*/

@@ -8,6 +8,7 @@ use App\Http\Controllers\Participation\UpdateParticipationController;
 
 use App\Http\Controllers\Participation\GetTestController;
 
+
 Route::get('/kampus', App\Http\Controllers\Kampus\KampusController::class);
 
 //Route::get('/campus', App\Http\Controllers\Kampus\KampusController::class);

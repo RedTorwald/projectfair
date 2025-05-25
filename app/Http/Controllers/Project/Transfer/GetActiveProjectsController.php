@@ -6,7 +6,31 @@ use App\Models\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
-use Carbon\Carbon;
+/**
+ * @OA\Get(
+ *     path="/transfer/approved",
+ *     summary="Получить активные проекты",
+ *     description="Этот метод возвращает список проектов, находящихся в активном состоянии (state_id = 2), если текущий месяц соответствует критериям.",
+ *     operationId="getActiveProjects",
+ *     tags={"Projects Transfer"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Список активных проектов"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка в запросе"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Не найдено активных проектов"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Ошибка сервера"
+ *     )
+ * )
+ */
 
 
 class GetActiveProjectsController extends Controller

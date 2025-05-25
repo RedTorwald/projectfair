@@ -7,6 +7,37 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Get(
+ *     path="/transfer/approved/projects",
+ *     summary="Получить одобренные проекты",
+ *     description="Этот метод возвращает проекты с состоянием 'Одобрено' (state_id = 9), у которых дата старта находится в пределах одного месяца до и после текущей даты.",
+ *     operationId="getApprovedProjects",
+ *     tags={"Projects Transfer"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешно возвращены одобренные проекты",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer", description="ID проекта"),
+ *                 @OA\Property(property="state_id", type="integer", description="ID состояния проекта"),
+ *                 @OA\Property(property="title", type="string", description="Название проекта")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Проекты не найдены"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Ошибка сервера"
+ *     )
+ * )
+ */
+
 
 class GetApprovedProjectsController extends Controller
 {

@@ -9,6 +9,80 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Storage;
 
+
+/**
+ * @OA\Patch(
+ *     path="/arm/projects/distribution",
+ *     summary="Обновление распределения студентов по проектам",
+ *     description="Позволяет изменить количество мест в проектах и выполнить перераспределение студентов",
+ *     operationId="updateDistribution",
+ *     tags={"ARM Distribution"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="Структура с обновленным количеством мест по проектам",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 required={"institute_id", "departments"},
+ *                 @OA\Property(property="institute_id", type="integer", example=1),
+ *                 @OA\Property(property="departments", type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         required={"department_id", "projects"},
+ *                         @OA\Property(property="department_id", type="integer", example=5),
+ *                         @OA\Property(property="projects", type="array",
+ *                             @OA\Items(
+ *                                 type="object",
+ *                                 required={"project_id", "places"},
+ *                                 @OA\Property(property="project_id", type="integer", example=101),
+ *                                 @OA\Property(property="places", type="integer", example=4)
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешное обновление распределения и возврат новой структуры",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="institute_id", type="integer", example=1),
+ *                 @OA\Property(property="institute_name", type="string", example="Институт Name"),
+ *                 @OA\Property(
+ *                     property="departments",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="department_id", type="integer", example=5),
+ *                         @OA\Property(property="department_name", type="string", example="Кафедра Name"),
+ *                         @OA\Property(
+ *                             property="projects",
+ *                             type="array",
+ *                             @OA\Items(
+ *                                 type="object",
+ *                                 @OA\Property(property="project_id", type="integer", example=123),
+ *                                 @OA\Property(property="title", type="string", example="Разработка веб-приложения"),
+ *                                 @OA\Property(property="places", type="integer", example=4),
+ *                                 @OA\Property(property="candidates_count", type="integer", example=3),
+ *                                 @OA\Property(property="specialities", type="array", @OA\Items(type="object")),
+ *                                 @OA\Property(property="candidates", type="array", @OA\Items(type="object"))
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
+
+
 class UpdateDistributionController extends Controller
 {   
     protected $candidateDistributionService;

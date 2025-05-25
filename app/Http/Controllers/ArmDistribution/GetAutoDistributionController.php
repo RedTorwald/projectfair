@@ -8,6 +8,51 @@ use App\Http\Services\CandidateDistributionService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @OA\Get(
+ *     path="/arm/projects",
+ *     summary="Автоматическое распределение кандидатов по проектам",
+ *     description="Производит автоматическое распределение студентов по проектам",
+ *     operationId="getAutoDistribution",
+ *     tags={"ARM Distribution"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Успешное автоматическое распределение студентов",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="institute_id", type="integer", example=1),
+ *                 @OA\Property(property="institute_name", type="string", example="Институт Name"),
+ *                 @OA\Property(
+ *                     property="departments",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="department_id", type="integer", example=5),
+ *                         @OA\Property(property="department_name", type="string", example="Кафедра Name"),
+ *                         @OA\Property(
+ *                             property="projects",
+ *                             type="array",
+ *                             @OA\Items(
+ *                                 type="object",
+ *                                 @OA\Property(property="project_id", type="integer", example=123),
+ *                                 @OA\Property(property="title", type="string", example="Разработка ИС"),
+ *                                 @OA\Property(property="places", type="integer", example=15),
+ *                                 @OA\Property(property="candidates_count", type="integer", example=10),
+ *                                 @OA\Property(property="specialities", type="array", @OA\Items(type="object")),
+ *                                 @OA\Property(property="candidates", type="array", @OA\Items(type="object"))
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ */
+
+
 class GetAutoDistributionController extends Controller
 {
     protected $candidateDistributionService;

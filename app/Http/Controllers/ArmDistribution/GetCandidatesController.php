@@ -5,6 +5,71 @@ namespace App\Http\Controllers\ArmDistribution;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
+
+/**
+ * @OA\Get(
+ *     path="/arm/candidates",
+ *     summary="Получение списка нераспределенных студентов",
+ *     description="Получение списка кандидатов и группировка их по институциям, кафедрам, курсам и специальностям.",
+ *     operationId="groupCandidates",
+ *     tags={"ARM Distribution"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Ок",
+ *         @OA\JsonContent(
+ *             type="array",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="institute_id", type="integer", example=1),
+ *                 @OA\Property(property="institute_name", type="string", example="Институт информационных технологий"),
+ *                 @OA\Property(
+ *                     property="departments",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="department_id", type="integer", example=5),
+ *                         @OA\Property(property="department_name", type="string", example="Кафедра ИСиТ"),
+ *                         @OA\Property(
+ *                             property="courses",
+ *                             type="array",
+ *                             @OA\Items(
+ *                                 type="object",
+ *                                 @OA\Property(property="course", type="string", example="1 курс"),
+ *                                 @OA\Property(
+ *                                     property="specialities",
+ *                                     type="array",
+ *                                     @OA\Items(
+ *                                         type="object",
+ *                                         @OA\Property(property="speciality_id", type="integer", example=101),
+ *                                         @OA\Property(property="speciality_name", type="string", example="Программирование"),
+ *                                         @OA\Property(
+ *                                             property="candidates",
+ *                                             type="array",
+ *                                             @OA\Items(
+ *                                                 type="object",
+ *                                                 @OA\Property(property="candidate_id", type="integer", example=200),
+ *                                                 @OA\Property(property="fio", type="string", example="Иванов Иван Иванович"),
+ *                                                 @OA\Property(property="training_group", type="string", example="ИСТб-21-1"),
+ *                                                 @OA\Property(property="priority", type="integer", example=1),
+ *                                                 @OA\Property(property="created_at", type="string", format="date-time", example="2025-05-22T08:00:00Z")
+ *                                             )
+ *                                         )
+ *                                     )
+ *                                 )
+ *                             )
+ *                         )
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Ошибка при обработке файла или данных"
+ *     )
+ * )
+ */
+
 class GetCandidatesController extends Controller
 {
     public function __invoke()
@@ -13,17 +78,6 @@ class GetCandidatesController extends Controller
         $inputFilePath = Storage::exists('3_updated.json') 
         ? '3_updated.json' 
         : '2_distribution.json';
-/*
-        $inputFilePath = Storage::exists('6_manual.json') 
-        ? '6_manual.json' 
-        : (Storage::exists('3_updated.json') 
-            ? '3_updated.json' 
-            : '2_distribution.json');*/
-
-            /*
-        $inputFilePath = Storage::exists('3_updated.json') 
-            ? '3_updated.json' 
-            : '2_distribution.json';*/
     
         $outputFilePath = '4_grouped_participations.json';    
        
