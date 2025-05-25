@@ -159,7 +159,8 @@ class GetAutoDistributionController extends Controller
         $emptyProjectsData = DB::table('projects')
             ->leftJoin('participations', 'projects.id', '=', 'participations.project_id')
             ->whereNull('participations.project_id')
-            ->where('projects.state_id', 1)
+          //  ->where('projects.state_id', 1) // нужно добавить состояния
+            ->whereIn('projects.state_id', [1, 2, 3])
             ->join('departments', 'projects.department_id', '=', 'departments.id')
             ->join('institutes', 'departments.institute_id', '=', 'institutes.id')
             ->select(

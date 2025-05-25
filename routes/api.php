@@ -84,12 +84,12 @@ Route::group(['prefix' => 'director'], function () {
 
 Route::group(['prefix' => 'supervisor'], function () {
     Route::get('/', App\Http\Controllers\Supervisor\MeController::class)->middleware(SupervisorAuthProtected::class); // Получить информацию об авторизованном преподе
-    Route::post('/projects', App\Http\Controllers\Supervisor\Projects\StoreController::class)->middleware(SupervisorAuthProtected::class);
+    Route::post('/projects', App\Http\Controllers\Supervisor\Projects\StoreController::class)->middleware(SupervisorAuthProtected::class);  // создание проектов
     Route::get('/projects', App\Http\Controllers\Supervisor\Projects\IndexController::class)->middleware(SupervisorAuthProtected::class);   //ProjectResource, отображение проектов в профиле супервизора, следует поменять на StartPageRes
     
     Route::patch('/projects/{project}/candidates/{candidate}', [UpdateParticipationController::class, 'update'])->middleware(SupervisorAuthProtected::class);
    
-    Route::get('/projects/{project}/candidates', GetTestController::class);  
+    Route::get('/projects/{project}/candidates', GetTestController::class)->middleware(SupervisorAuthProtected::class);  
     Route::patch('/projects/{project}', App\Http\Controllers\Supervisor\Projects\UpdateController::class)->middleware(SupervisorAuthProtected::class);
     Route::delete('/projects/{project}', App\Http\Controllers\Supervisor\Projects\DeleteController::class)->middleware(SupervisorAuthProtected::class);
 
@@ -185,41 +185,66 @@ Route::middleware(['candidateAuthProtected'])->group(function () { // роуты
 Route::get('/participationsDeadline', App\Http\Controllers\Participation\DeadLineController::class); // Получение дедлайна подачи заявки
 
 
-
-Route::group(['prefix' => 'arm'], function () {
+Route::group(['prefix' => 'arm'], function () { // роуты для формирования проектных команд
     
     Route::get('/projects', App\Http\Controllers\ArmDistribution\GetAutoDistributionController::class); // автоматическое формирование проектных команд
     Route::patch('/projects/distribution', App\Http\Controllers\ArmDistribution\UpdateDistributionController::class); // внесение изменений при автоматическом формировании 
 
     Route::get('/candidates', App\Http\Controllers\ArmDistribution\GetCandidatesController::class); // получение нераспределенных студентов
 
-    Route::get('/approveDistribution', App\Http\Controllers\ArmDistribution\GetApproveDistributionController::class); // отправка json файла со студентами
-
-
     Route::get('/manualDistribution', App\Http\Controllers\ArmDistribution\GetManualDistributionController::class); // ручное распределение
     Route::patch('/manualDistribution', App\Http\Controllers\ArmDistribution\UpdateManualDistributionController::class);
-
 
     Route::get('/eraseDistribution', App\Http\Controllers\ArmDistribution\GetExistenceController::class); // гет для проверки наличия файлов с предыдущим распределением
     Route::post('/eraseDistribution', App\Http\Controllers\ArmDistribution\PostEraseDistributionController::class); // пост для удаления
 
-
     Route::get('/manualDistribution/back', App\Http\Controllers\ArmDistribution\UpdateLastManualActionController::class); // логирование ручного распределения
-
-
-    Route::get('/finalDistribution', App\Http\Controllers\ArmDistribution\GetFinalDistributionController::class);
+ 
+    Route::get('/approveDistribution', App\Http\Controllers\ArmDistribution\GetCandidateProjectController::class); // финальное распределение со студентами и возможными проектами для них (для переноса студентов между проектами)
+    Route::patch('/approveDistribution', App\Http\Controllers\ArmDistribution\UpdateCandidateProjectController::class);
+    
 
     Route::post('/exportCandidates', App\Http\Controllers\ArmDistribution\ExportCandidatesController::class);  //экспорт в БД
     Route::delete('/cancelExportCandidates', App\Http\Controllers\ArmDistribution\CancelExportController::class); //откат экспорта
 });
 
-//-------------------------------------------------------------------------------
-/*
-Route::get('/test/proj', App\Http\Controllers\UpdateProjectStateController::class);
 
-Route::get('/test', App\Http\Controllers\GetCandidateProjectController::class);
-Route::patch('/t/update', App\Http\Controllers\UpdateCandidateProjectController::class);*/
-/*
-Route::get('/arm', App\Http\Controllers\GetTestController::class);*/
+Route::group(['prefix' => 'transfer'], function () { // роуты для перевода состояний проектов
+   // активные (2) -> одобрено (9)
+    Route::get('/approved', App\Http\Controllers\Project\Transfer\GetActiveProjectsController::class); // активные -> одобрено (получение проектов)
+    Route::post('/approved/update', App\Http\Controllers\Project\Transfer\UpdateToApprovedController::class); // активные -> одобрено (обновление проектов)
+
+    // одобрено (9) -> идет набор (1)
+    Route::get('/recruitment', App\Http\Controllers\Project\Transfer\GetApprovedProjectsController::class); // одобрено -> идет набор (получение проектов)
+    Route::post('/recruitment/update', App\Http\Controllers\Project\Transfer\UpdateToRecruitmentStateController::class); // одобрено -> идет набор (обновление проектов)
+    Route::post('/recruitment/cancel', App\Http\Controllers\Project\Transfer\CancelRecruitmentStateController::class); // идет набор -> одобрено (отмена обновления)
+
+    // идет набор(1) -> обработка заявок (5)
+    Route::get('/processing', App\Http\Controllers\Project\Transfer\GetRecruitmentProjectsController::class); // идет набор -> обработка заявок (получение проектов)
+    Route::post('/processing/update', App\Http\Controllers\Project\Transfer\UpdateToProcessingStateController::class); // идет набор -> обработка заявок (обновление проектов)
+    Route::post('/processing/cancel', App\Http\Controllers\Project\Transfer\CancelProcessingStateController::class); // обработка заявок -> идет набор (отмена обновления)
+
+    // обработка заявок (5) -> активные (2)
+    Route::get('/active', App\Http\Controllers\Project\Transfer\GetProcessingProjectsController::class); // обработка заявок  -> активные (получение проектов)
+    Route::post('/active/update', App\Http\Controllers\Project\Transfer\UpdateToActiveStateController::class); // обработка заявок  -> активные (обновление проектов)
+
+    // активные (2) -> архивные (4)
+    Route::get('/archive', App\Http\Controllers\Project\Transfer\GetActiveProjectsForArchiveController::class); // активные  -> архивные (получение проектов)
+    Route::post('/archive/update', App\Http\Controllers\Project\Transfer\UpdateToArchiveStateController::class); // активные  -> архивные (получение проектов) 
+    Route::post('/archive/cancel', App\Http\Controllers\Project\Transfer\CancelArchiveStateController::class); // обработка заявок -> идет набор (отмена обновления)
+   
+   
+    // перевод заявок студентов
+    Route::get('/students', App\Http\Controllers\Participation\Transfer\GetCandidatesController::class);
+    Route::get('/students/participations', App\Http\Controllers\Participation\Transfer\GetCandidateParticipationsController::class);
+    Route::post('/students/participations', App\Http\Controllers\Participation\Transfer\MakeParticipationController::class);
+});
+
+
+
+
+//-------------------------------------------------------------------------------
+
+
 //Route::get('/docs', App\Http\Controllers\DocumentController::class); // контроллер для перевода отчетности в БД
 
