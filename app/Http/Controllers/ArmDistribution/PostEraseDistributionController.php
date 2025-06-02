@@ -24,7 +24,7 @@ class PostEraseDistributionController extends Controller
         // список файлов для удаления
         $filesToDelete = ['duplicates.json', '3_updated.json', '3_1_updated.json',
                           '4_grouped_participations.json', '5_manual.json', '6_manual.json',
-                          '7_log.json', '8_final.json'
+                          '7_log.json', '8_final.json', '6_final_distribution'
                         ];
 
         // результат удаления
