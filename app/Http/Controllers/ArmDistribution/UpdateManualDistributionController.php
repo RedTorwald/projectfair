@@ -168,11 +168,17 @@ class UpdateManualDistributionController extends Controller
                                 foreach ($department['projects'] as &$project) {
                                     if ($project['project_id'] === $selectedProjectId) {
                                         $project['candidates'][] = [
-                                            'candidate_id' => $candidate['candidate_id'],
+                                            'candidate_id' => $candidate['candidate_id'],                                            
+                                            'training_group' => $candidate['training_group'], 
+                                            'course' => $candidate['course'],
                                             'fio' => $candidate['fio'],
-                                            'priority' => $candidate['priority'],
-                                            'state_id' => 1,
                                             'created_at' => now()->toDateTimeString(),
+                                            'priority' => $candidate['priority'],
+                                            'institute_id' => $candidate['institute_id'],
+                                            'department_id' => $candidate['department_id'],
+                                            'speciality_id' => $candidate['speciality_id'],
+                                            'stranger' => 0,
+                                            'state_id' => 1,
                                         ];
                                         $project['candidates_count']++;
                                         break 3;
@@ -184,6 +190,8 @@ class UpdateManualDistributionController extends Controller
                 }
             }
         }
+
+      
 
         // возвращаем обновленные данные
         return [
