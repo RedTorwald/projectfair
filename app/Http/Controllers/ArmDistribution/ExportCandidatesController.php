@@ -13,11 +13,11 @@ class ExportCandidatesController extends Controller
     public function __invoke()
     {
        
-       // $filePath = '3_updated.json';
-       $filePath = '10_test.json';
+       $filePath = '6_final_distribution.json';
+       
 
         if (!Storage::exists($filePath)) {
-            return response()->json(['error' => 'Файл 3_updated.json не найден'], 404);
+            return response()->json(['error' => 'Файл 6_final_distribution.json не найден'], 404);
         }
 
         $jsonData = json_decode(Storage::get($filePath), true);
@@ -51,7 +51,7 @@ class ExportCandidatesController extends Controller
         $outputFilePath = '8_final.json';
         Storage::put($outputFilePath, json_encode($applications, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-        /*
+        
         // 5. вставляем заявки в базу данных
         try {
             DB::beginTransaction();
@@ -61,7 +61,7 @@ class ExportCandidatesController extends Controller
             DB::rollBack();
             return response()->json(['error' => 'Ошибка при вставке заявок в базу данных', 'details' => $e->getMessage()], 500);
         }
-*/
+
        
         return response()->json([
             'message' => 'Кандидаты успешно экспортированы и сохранены в базе данных',

@@ -53,7 +53,7 @@ class GetActiveProjectsController extends Controller
     {
         $currentMonth = now()->month; //определение текущего месяца
 
-        if (in_array($currentMonth, [11, 12, 1, 5])) { // проверка на подходящий месяц
+        if (in_array($currentMonth, [11, 12, 1])) { // проверка на подходящий месяц
             return Project::with(['department', 'supervisors', 'type', 'themeSource', 'projectSpecialities'])
                 ->where('state_id', $stateId)
                 ->get();

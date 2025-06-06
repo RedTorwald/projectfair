@@ -207,6 +207,8 @@ Route::group(['prefix' => 'arm'], function () { // роуты для форми�
 
     Route::post('/exportCandidates', App\Http\Controllers\ArmDistribution\ExportCandidatesController::class);  //экспорт в БД
     Route::delete('/cancelExportCandidates', App\Http\Controllers\ArmDistribution\CancelExportController::class); //откат экспорта
+
+    Route::post('/eraseFinalDistribution', App\Http\Controllers\ArmDistribution\PostEraseFinalDistributionController::class); // пост для удаления финального распределения
 });
 
 

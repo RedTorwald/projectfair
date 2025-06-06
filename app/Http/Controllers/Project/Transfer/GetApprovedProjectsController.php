@@ -56,8 +56,8 @@ class GetApprovedProjectsController extends Controller
     {
         // получение диапазона месяцев для определения проектов в состояниии "одобрена"(9), подходящих для переноса в состояние идет набор (1)
         // Дата старат должна быть в окрестности +-1 месяц от текущей даты
-        $startDate = now()->subMonth(1);       
-        $endDate = now()->addMonth(1);         
+        $startDate = now()->subMonth(10);       
+        $endDate = now()->addMonth(10);         
         return Project::with(['department', 'supervisors', 'type', 'themeSource', 'projectSpecialities', 'participation'])
             ->where('state_id', $stateId)
             ->whereBetween('date_start', [$startDate, $endDate])
