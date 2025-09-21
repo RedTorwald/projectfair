@@ -5,6 +5,7 @@ use App\Http\Middleware\CandidateAuthProtected;
 use App\Http\Middleware\SupervisorAuthProtected;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Participation\UpdateParticipationController;
+use App\Http\Controllers\Invitation\InvitationController;
 
 use App\Http\Controllers\Participation\GetTestController;
 
@@ -96,6 +97,32 @@ Route::group(['prefix' => 'supervisor'], function () {
 
     Route::get('/project/supervisors', App\Http\Controllers\Supervisor\Experts\IndexController::class)->middleware(SupervisorAuthProtected::class);  
 
+});
+
+// --------- INVITATION ROUTES ---------
+
+Route::group(['prefix' => 'invitation'], function (){
+
+    Route::post('send', [InvitationController::class, 'send'])    // Отправка приглашения — только наставники и со-наставники
+        ->middleware(SupervisorAuthProtected::class);
+
+    Route::get('projects/{projectId}', [InvitationController::class, 'invitationsForProject'])    // Получение всех приглашений проекта — только наставники проекта
+        ->middleware(SupervisorAuthProtected::class);
+    
+    Route::get('{invitationId}/supervisor', [InvitationController::class, 'invitationForProjectSupervisor'])    // Получение одного приглашения для наставника
+        ->middleware(SupervisorAuthProtected::class);
+
+    Route::post('{id}/accept', [InvitationController::class, 'accept'])    // Принятие приглашения — только студенты
+        ->middleware(CandidateAuthProtected::class);
+
+    Route::post('{id}/reject', [InvitationController::class, 'reject'])    // Отклонение приглашения — только студенты
+        ->middleware(CandidateAuthProtected::class);
+
+    Route::get('candidates/{candidateId}', [InvitationController::class, 'invitationsForCandidate'])    // Получение всех приглашений студента — только сам студент
+        ->middleware(CandidateAuthProtected::class);
+
+    Route::get('{invitationId}/candidate', [InvitationController::class, 'invitationForCandidate'])    // Получение одного приглашения для студента
+        ->middleware(CandidateAuthProtected::class);
 });
 
 // --------- USER ROUTES ---------
