@@ -22,10 +22,6 @@ return new class extends Migration {
             $table->foreign('candidate_id')->references('id')->on('candidates')->onDelete('cascade');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
             $table->foreign('supervisor_id')->references('id')->on('supervisors')->onDelete('cascade');
-
-            // Уникальное ограничение. Только одно активное принятое приглашение для студента
-            $table->unique(['candidate_id'], 'unique_candidate_accepted_invitation')
-                  ->where('status', '=', 'accepted');
         });
     }
 
